@@ -1,3 +1,22 @@
+ /*
+  * graphic depictions, a visual workbench for graphs 
+  * 
+  * Copyright (C) 2016 Matvey Soloviev
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
 #include "stdafx.h"
 #include "engine.h"
 #ifdef WIN32
@@ -292,7 +311,7 @@ void CSEngine::SaveScript(int id)
     FILE *fl=fopen(buffn, "w");
     fprintf(fl,"// gd %s script %s\n", scripts[id].onNodes?"node":"graph", scripts[id].name.c_str());
     fprintf(fl,"%s",scripts[id].code.c_str());
-    fclose(fl);}
+    fclose(fl);}
 
 bool CSEngine::CompileScript(const char *code, const char* name, Handle<Script> &out)
 {
@@ -307,7 +326,7 @@ bool CSEngine::CompileScript(const char *code, const char* name, Handle<Script> 
         strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
         return false;
     }
-    return true;}
+    return true;}
 
 bool CSEngine::RunScriptForNode(CSState::CSNode *n, Handle<Script> script)
 {
@@ -415,7 +434,7 @@ void CSEngine::Click(int btn, int x,int y)
                 (*i)->selected=true;
                 st.nselected=1;
             }
-        }    }
+        }    }
 
     if(btn==4) {
         graphics.zoom /= 1.1;
@@ -488,10 +507,10 @@ void CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
             } else {
                 RunScript(sc);
             }
-        }    }
+        }    }
     ImGui::PopStyleColor();
     if(!local) ImGui::PopStyleColor();
-    ImGui::NextColumn();}
+    ImGui::NextColumn();}
 
 void CSEngine::RunLogic()
 {
@@ -567,7 +586,7 @@ void CSEngine::RunLogic()
                     (*i)->pos[1] += graphics.ty-sy;
                     (*i)->pos[2] += graphics.tz-sz;
                 }
-            }        }
+            }        }
     }
 
     /* Relax layout energy */
@@ -633,7 +652,7 @@ void CSEngine::RunLogic()
         keys[KEY_V]=false;
         CSState::CSNode *n = st.AddNode( x,y,z );
         n->selected = true;
-        ++st.nselected;    } else if(keys[KEY_C]) {
+        ++st.nselected;    } else if(keys[KEY_C]) {
         float x,y,z;
         graphics.ScreenToSpace(graphics.mx, graphics.my,x, y,z);
         keys[KEY_C]=false;
@@ -719,7 +738,7 @@ void CSEngine::RunLogic()
         if(ImGui::MenuItem("Add node","V")) {
             CSState::CSNode *n = st.AddNode( x,y,z );
             n->selected = true;
-            ++st.nselected;        }
+            ++st.nselected;        }
         if(ImGui::MenuItem("Connect nodes","C")) {
             for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
                 for(auto j=st.nodes.begin(); j!=st.nodes.end(); ++j) {
@@ -804,7 +823,7 @@ void CSEngine::RunLogic()
     ImGui::Text("V Angle: %.1f°", graphics.vangle*180/PI);
 
     if(ImGui::Button("Reset")) {
-        graphics.ResetView();    }
+        graphics.ResetView();    }
 
     ImGui::End();
 
@@ -874,12 +893,12 @@ void CSEngine::RunLogic()
     for(auto s=scripts.begin(); s!= scripts.end(); ++s) {
         ImGui::PushID(s-scripts.begin());
         ScriptListEntry( &(*s), s-scripts.begin(), false );
-        ImGui::PopID();    }
+        ImGui::PopID();    }
 
     for(auto s=st.scripts.begin(); s!= st.scripts.end(); ++s) {
         ImGui::PushID(10000+s-st.scripts.begin());
         ScriptListEntry( &(*s), s-st.scripts.begin(), true );
-        ImGui::PopID();    }
+        ImGui::PopID();    }
     ImGui::Columns(1);
     ImGui::EndChild();
 
@@ -917,7 +936,7 @@ void CSEngine::RunLogic()
             if(filename && filename[0]) {
                 ExportTikz(&st,filename);
             }
-            if(filename) free(filename);        }
+            if(filename) free(filename);        }
         ImGui::EndMenu();
     }
 
@@ -989,7 +1008,7 @@ void CSEngine::RunLogic()
             ImGui::EndMenu();
         }
         if(ImGui::MenuItem("Minimise energy","Q")) {
-            action=AC_RELAX;        }
+            action=AC_RELAX;        }
 
         ImGui::EndMenu();
     }

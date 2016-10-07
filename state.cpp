@@ -1,3 +1,22 @@
+ /*
+  * graphic depictions, a visual workbench for graphs 
+  * 
+  * Copyright (C) 2016 Matvey Soloviev
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  *
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
 #include "stdafx.h"
 
 #ifndef _WINDOWS
@@ -27,7 +46,7 @@ CSState::CSAttr::CSAttr(int i, bool bits)
 }
 
 CSState::CSAttr::CSAttr()
-{}
+{}
 
 
 CSState::CSNode *CSState::AddNode(float x, float y, float z)
@@ -40,7 +59,7 @@ CSState::CSNode *CSState::AddNode(float x, float y, float z)
 
     nodes.insert(n);
 
-    return n;}
+    return n;}
 
 void CSState::DelNode(CSNode *n)
 {
@@ -59,7 +78,7 @@ void CSState::DelNode(CSNode *n)
         selgroups[i].erase(n);
     }
 
-    delete n;}
+    delete n;}
 
 void CSState::DelEdge(CSEdge *e)
 {
@@ -130,7 +149,7 @@ void CSState::DuplicateSelection()
     }
     for(auto i=old2new.begin(); i!=old2new.end(); ++i) {
         i->second->selected=true;
-        i->first->selected=false;    }
+        i->first->selected=false;    }
 }
 
 void CSState::ExtrudeSelection()
@@ -156,7 +175,7 @@ void CSState::ExtrudeSelection()
     }
     for(auto i=old2new.begin(); i!=old2new.end(); ++i) {
         i->second->selected=true;
-        i->first->selected=false;    }
+        i->first->selected=false;    }
 }
 
 /* manipulate selection */
@@ -235,7 +254,7 @@ void CSState::InvertSelection()
     nselected = nodes.size()-nselected;
     for(auto i=nodes.begin(); i!=nodes.end(); ++i) {
         (*i)->selected = !(*i)->selected;
-    }}
+    }}
 
 /* selection groups */
 void CSState::LoadSelectionGroup(int id)
@@ -347,7 +366,7 @@ void CSState::OrderFromSelection()
         ypos += 0.05f;
         for(auto i=t->adj.begin(); i!=t->adj.end(); ++i) {
             nq.push( *i);
-        }    }
+        }    }
 }
 
 
@@ -528,7 +547,7 @@ void CSState::Load()
         scripts.back().name = buftitle;
         fread(bufcode,1,len,fl);
         bufcode[len]=0;
-        scripts.back().code = bufcode;    }
+        scripts.back().code = bufcode;    }
 
     fclose(fl);
 }
@@ -599,7 +618,7 @@ void CSState::Save()
     for(int id=0;id<scripts.size();++id) {
         fprintf(fl,"%d byte %s script %s\n", scripts[id].code.length(),scripts[id].onNodes?"node":"graph", scripts[id].name.c_str());
         fwrite(scripts[id].code.c_str(),scripts[id].code.length(),1,fl);
-        fprintf(fl,"\n");    }
+        fprintf(fl,"\n");    }
 
     fclose(fl);
 }
