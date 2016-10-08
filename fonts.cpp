@@ -188,7 +188,6 @@ void CSTextContainer::IncrementFrame()
 		    timeout=2;
 		} else {
 			int n=0;
-			if(snd && (*ptr!=' ')) s.s->PlaySound("CHAR");
 			utf8unpack((unsigned char*)ptr,(long*)&n);
 			ptr+=(n+1);
 			timeout=default_timeout;

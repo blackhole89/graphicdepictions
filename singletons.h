@@ -33,8 +33,6 @@ public:
 	CSTexturePool *texpool;
 	CSMainWindow *wnd;
 	CSEngine *e;
-	CSSoundSystem *s;
-	CSUI *u;
 };
 
 extern CSSingletons s;

@@ -26,6 +26,7 @@
 
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#define _CRT_SECURE_NO_WARNINGS
 // Windows Header Files:
 #ifdef WIN32
 #include <windows.h>
@@ -54,21 +55,27 @@
 #include <pthread.h>
 int pthread_delay_np(timespec *ts);
 #else
+
+#include <iterator>
+
+#define HAVE_STRUCT_TIMESPEC 1
 #include "pthread.h"
 #endif
 //OpenGL
 #include <GL/gl.h>
 #include <GL/glu.h>
 //application
+#ifndef WIN32
 #include "window.h"
+#else
+#include "win32window.h"
+#endif
 #include "texture.h"
 #include "texpool.h"
 #include "graphics.h"
 #include "engine.h"
 #include "file.h"
-#include "sound.h"
 #include "fonts.h"
-#include "ui.h"
 #include "export.h"
 
 #include "imgui/imgui.h"

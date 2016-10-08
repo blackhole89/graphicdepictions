@@ -19,7 +19,7 @@
 
 #include "stdafx.h"
 
-#ifndef _WINDOWS
+#ifndef WIN32
 #include <gtk.h>
 #else
 #endif

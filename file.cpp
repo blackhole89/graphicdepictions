@@ -75,7 +75,7 @@ void CSOutContainer::InitBlock(long code)
 
 void CSOutContainer::NextBlock(long code)
 {
-    int c,d;
+    int c=0,d;
     while(!feof(fl) && c!=code) {
         fread(&c,4,1,fl);
         printf("%08X\n",c);

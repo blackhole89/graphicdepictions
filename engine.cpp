@@ -22,9 +22,9 @@
 #ifdef WIN32
 #include "pthread.h"
 #include "semaphore.h"
-#endif
-
+#else
 #include <sys/time.h>
+#endif
 
 using namespace v8;
 
@@ -235,7 +235,6 @@ void CSEngine::Init(CSMainWindow *wndw)
     #endif
 
 	graphics.Init(this);
-	s.s->Init();
 
 	memset(keys,0,sizeof(keys));
 
@@ -1207,20 +1206,23 @@ void CSEngine::Run()
 	pthread_t tid;
 	//pthread_create(&tid,NULL,LolThread,(void*)this);
 	pthread_create(&tid,NULL,fpscount,(void*)this);
+	long long t;
+	int last_frame;
 
+#ifndef WIN32
     timeval tv;
-    long long t;
-    int last_frame;
 
     gettimeofday(&tv,NULL);
     t=tv.tv_sec*1000000 + tv.tv_usec;
+#else
+	t = GetTickCount() * 1000;
+#endif
     last_frame=t/(1000000LL/60);
 
 	while(1)
 	{
 	    /* NEW SINGLETHREADED LOOP */
 	    {
-            s.s->Handle();
             ++f1;
 
 
@@ -1242,8 +1244,12 @@ void CSEngine::Run()
             ts.tv_sec=0; ts.tv_nsec=df1;//12000000;
             pthread_delay_np(&ts); */
 	    }
-	    gettimeofday(&tv,NULL);
-        t=tv.tv_sec*1000000 + tv.tv_usec;
+#ifndef WIN32
+		gettimeofday(&tv, NULL);
+		t = tv.tv_sec * 1000000 + tv.tv_usec;
+#else
+		t = GetTickCount() * 1000;
+#endif
         int fdelta=(t/(1000000LL/60))-last_frame;
         //for(int i=0;i<fdelta;++i) {
             RunLogic();
