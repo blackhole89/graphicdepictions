@@ -483,8 +483,9 @@ void CSEngine::SetSelectionRect(int x0, int y0, int x1, int y1)
     graphics.sy1=y1;
 }
 
-void CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
+bool CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
 {
+    bool reassign=false;
     if(!local) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,0,1));
     if(ImGui::Selectable(s->name.c_str())) {
         editor_index=id;
@@ -493,6 +494,13 @@ void CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
         strcpy(editor_buf,s->code.c_str());
         editor_is_pernode = s->onNodes;
     }
+    if(ImGui::BeginPopupContextItem("local or global",2)) {
+        if(ImGui::MenuItem("Stored with graph","",&local)) {
+            reassign=true;
+        }
+        ImGui::EndPopup();
+    }
+
     ImGui::NextColumn();
     if(!s->onNodes) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.55,0.1,0.2,1.0));
     else ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.5,0.2,1.0));
@@ -508,8 +516,21 @@ void CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
             }
         }    }
     ImGui::PopStyleColor();
-    if(!local) ImGui::PopStyleColor();
-    ImGui::NextColumn();}
+    if(!(local^reassign)) ImGui::PopStyleColor();
+    ImGui::NextColumn();
+
+    if(reassign) {
+        if(local) {
+            st.scripts.push_back(*s);
+            scripts.erase(scripts.begin()+id);
+        } else {
+            scripts.push_back(*s);
+            st.scripts.erase(st.scripts.begin()+id);
+        }
+        return false;
+    }
+    return true;
+}
 
 void CSEngine::RunLogic()
 {
@@ -889,15 +910,17 @@ void CSEngine::RunLogic()
     ImGui::Columns(2,"##scolumns",false);
     ImGui::SetColumnOffset(1,ImGui::GetWindowContentRegionWidth()-50);
 
-    for(auto s=scripts.begin(); s!= scripts.end(); ++s) {
-        ImGui::PushID(s-scripts.begin());
-        ScriptListEntry( &(*s), s-scripts.begin(), false );
-        ImGui::PopID();    }
+    for(int i=0;i<scripts.size();) {
+        ImGui::PushID(i);
+        i+=ScriptListEntry( &scripts[i], i, false );
+        ImGui::PopID();    
+    }
 
-    for(auto s=st.scripts.begin(); s!= st.scripts.end(); ++s) {
-        ImGui::PushID(10000+s-st.scripts.begin());
-        ScriptListEntry( &(*s), s-st.scripts.begin(), true );
-        ImGui::PopID();    }
+    for(int i=0;i<st.scripts.size();) {
+        ImGui::PushID(10000+i);
+        i+=ScriptListEntry( &st.scripts[i], i, true );
+        ImGui::PopID();    
+    }
     ImGui::Columns(1);
     ImGui::EndChild();
 

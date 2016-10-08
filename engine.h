@@ -170,7 +170,8 @@ public:
     char editor_buf[4096];
     bool editor_is_pernode;
 
-	void ScriptListEntry(CSScript *s, int id, bool local);
+    /* return true iff entry was not erased */
+	bool ScriptListEntry(CSScript *s, int id, bool local);
 
 	void Init(CSMainWindow *wndw);
 	void Run();
