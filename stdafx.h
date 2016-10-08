@@ -30,9 +30,14 @@
 // Windows Header Files:
 #ifdef WIN32
 #include <windows.h>
+#define ENVSTRING "win64"
 #else
 #include <unistd.h>
+#define ENVSTRING "linux x86_64"
 #endif
+
+#define VERSION "0.1"
+#define VERSTRING VERSION" ("ENVSTRING")"
 
 // no idea where these even come from
 #undef None

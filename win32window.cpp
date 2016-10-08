@@ -1,18 +1,23 @@
 #include "stdafx.h"
 #include "window.h"
+#include <winuser.h>
+#include <commdlg.h>
 
 CSMainWindow *wnd;
 
-LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
-							UINT	uMsg,			// Message For This Window
-							WPARAM	wParam,			// Additional Message Information
-							LPARAM	lParam)			// Additional Message Information
+
+#define DRAG_THRESHOLD 8
+
+LRESULT CALLBACK WndProc(	HWND	hWnd,			
+							UINT	uMsg,			
+							WPARAM	wParam,			
+							LPARAM	lParam)			
 {
-	switch (uMsg)									// Check For Windows Messages
+	switch (uMsg)									
 	{
-		case WM_ACTIVATE:							// Watch For Window Activate Message
+		case WM_ACTIVATE:							
 		{
-			if (!HIWORD(wParam))					// Check Minimization State
+			if (!HIWORD(wParam))					
 			{
 				wnd->SetActive();
 			}
@@ -21,27 +26,81 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
 				wnd->SetInactive();
 			}
 
-			return 0;								// Return To The Message Loop
+			return 0;								
 		}
-		case WM_CLOSE:								// Did We Receive A Close Message?
+		case WM_CLOSE:								
 		{
-			PostQuitMessage(0);						// Send A Quit Message
+			PostQuitMessage(0);						
 			wnd->Close();
-			return 0;								// Jump Back
+			return 0;								
 		}
 		case WM_LBUTTONDOWN:
+        case WM_MBUTTONDOWN:
+        case WM_RBUTTONDOWN:
+            wnd->px=LOWORD(lParam);
+            wnd->py=HIWORD(lParam);
+            if(ImGui::GetIO().WantCaptureMouse) {
+                    //printf("click suppressed\n");
+            wnd->px=wnd->py=-999;                }
+
+            printf("lbuttondown %d %d\n",s.e->wnd->px, s.e->wnd->py);
+
+            int button;
+            switch(uMsg) {
+            case WM_LBUTTONDOWN: button=1; break;
+            case WM_MBUTTONDOWN: button=2; break;
+            case WM_RBUTTONDOWN: button=3; break;
+            }
+            s.e->keys[button]=true;
 			break;
 		case WM_LBUTTONUP:
+        case WM_MBUTTONUP:
+        case WM_RBUTTONUP:
+            if( (abs(wnd->px-LOWORD(lParam)) + abs(wnd->py-HIWORD(lParam)))<DRAG_THRESHOLD ) s.e->Click(1, LOWORD(lParam), HIWORD(lParam));
+
+            switch(uMsg) {
+            case WM_LBUTTONUP: button=1; break;
+            case WM_MBUTTONUP: button=2; break;
+            case WM_RBUTTONUP: button=3; break;
+            }
+            s.e->keys[button]=false;
+           
+            s.e->CancelDragging();
 			//s.e->LClick(lParam&0xFFFF,(lParam&0xFFFF0000)>>16);
 			break;
+        case WM_MOUSEWHEEL:
+            printf("wheel %08X %08X %d\n",lParam, wParam, GET_WHEEL_DELTA_WPARAM(wParam));
+            if( GET_WHEEL_DELTA_WPARAM(wParam)>0 ) s.e->Click(4, LOWORD(lParam), HIWORD(lParam));
+            else if( GET_WHEEL_DELTA_WPARAM(wParam)<0 ) s.e->Click(5, LOWORD(lParam), HIWORD(lParam));
+            //else s.e->keys[4]=s.e->keys[5]=false;
+            break;
+        case WM_MOUSEMOVE:
+            s.e->graphics.mx = LOWORD(lParam);
+            s.e->graphics.my = HIWORD(lParam);
+            break;
 		case WM_KEYDOWN:
-			s.e->keys[wParam&0xFF]=true;
+            //if(k<0xE000) ImGui::GetIO().AddInputCharacter(wParam&0xFF);
+
+            if(!ImGui::GetIO().WantCaptureKeyboard) {
+                s.e->keys[wParam&0xFF]=true;
+            }
+            
+            ImGui::GetIO().KeysDown[wParam&0xFF]=true;
 			break;
 		case WM_KEYUP:
 			s.e->keys[wParam&0xFF]=false;
+            ImGui::GetIO().KeysDown[wParam&0xFF]=false;
 			break;
+        case WM_CHAR:
+            if(wParam<256) ImGui::GetIO().AddInputCharacter( (ImWchar) wParam );
+            break;
 		case WM_PAINT:
 			break;
+        case WM_SIZE:
+            wnd->w = LOWORD(lParam);
+            wnd->h = HIWORD(lParam);
+            glViewport( 0, 0, wnd->w, wnd->h );
+            break;
 	}
 	return DefWindowProc(hWnd,uMsg,wParam,lParam);
 }
@@ -53,35 +112,35 @@ void CSMainWindow::Create()
 
 	WNDCLASS wc;
 
-	hInstance			= GetModuleHandle(NULL);				// Grab An Instance For Our Window
-	wc.style			= CS_DBLCLKS | CS_OWNDC;	// Redraw On Size, And Own DC For Window.
-	wc.lpfnWndProc		= (WNDPROC) WndProc;					// WndProc Handles Messages
-	wc.cbClsExtra		= 0;									// No Extra Window Data
-	wc.cbWndExtra		= 0;									// No Extra Window Data
-	wc.hInstance		= hInstance;							// Set The Instance
-	wc.hIcon			= NULL;			// Load The Default Icon
-	wc.hCursor			= LoadCursor(NULL, IDC_ARROW);			// Load The Arrow Pointer
-	wc.hbrBackground	= NULL;									// No Background Required For GL
-	wc.lpszMenuName		= NULL;									// We Don't Want A Menu
-	wc.lpszClassName	= "space";							// Set The Class Name
+	hInstance			= GetModuleHandle(NULL);				
+	wc.style			= CS_DBLCLKS | CS_OWNDC;	
+	wc.lpfnWndProc		= (WNDPROC) WndProc;					
+	wc.cbClsExtra		= 0;									
+	wc.cbWndExtra		= 0;									
+	wc.hInstance		= hInstance;							
+	wc.hIcon			= NULL;		
+	wc.hCursor			= LoadCursor(NULL, IDC_ARROW);			
+	wc.hbrBackground	= NULL;									
+	wc.lpszMenuName		= NULL;									
+	wc.lpszClassName	= "gdepictions";
 
-	if (!RegisterClass(&wc))									// Attempt To Register The Window Class
+	if (!RegisterClass(&wc))									
 	{
 		MessageBox(NULL,"Failed To Register The Window Class.","ERROR",MB_OK|MB_ICONEXCLAMATION);
 		return;
 	}
 
-	if (!(hWnd=CreateWindowEx(	0,							// Extended Style For The Window
-								"space",							// Class Name
-								"space",								// Window Title
-								WS_OVERLAPPEDWINDOW,					// Required Window Style
-								150, 150,								// Window Position
-								800,	// Calculate Window Width
-								600,	// Calculate Window Height
-								NULL,								// No Parent Window
-								NULL,								// No Menu
-								hInstance,							// Instance
-								NULL)))								// Dont Pass Anything To WM_CREATE
+	if (!(hWnd=CreateWindowEx(	0,						
+								"gdepictions",			
+								"graphic depictions",	
+								WS_OVERLAPPEDWINDOW,	
+								150, 150,				
+								800,	
+								600,	
+								NULL,					
+								NULL,					
+								hInstance,				
+								NULL)))					
 	{
 		return;
 	}
@@ -101,26 +160,26 @@ void CSMainWindow::InitGL()
 {
 	GLuint		PixelFormat;
 
-	static	PIXELFORMATDESCRIPTOR pfd=				// pfd Tells Windows How We Want Things To Be
+	static	PIXELFORMATDESCRIPTOR pfd=
 	{
-		sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
-		1,											// Version Number
-		PFD_DRAW_TO_WINDOW |						// Format Must Support Window
-		PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
-		PFD_DOUBLEBUFFER,							// Must Support Double Buffering
-		PFD_TYPE_RGBA,								// Request An RGBA Format
-		32,										// Select Our Color Depth
-		0, 0, 0, 0, 0, 0,							// Color Bits Ignored
-		0,											// No Alpha Buffer
-		0,											// Shift Bit Ignored
-		0,											// No Accumulation Buffer
-		0, 0, 0, 0,									// Accumulation Bits Ignored
-		16,											// 16Bit Z-Buffer (Depth Buffer)  
-		0,											// No Stencil Buffer
-		0,											// No Auxiliary Buffer
-		PFD_MAIN_PLANE,								// Main Drawing Layer
-		0,											// Reserved
-		0, 0, 0										// Layer Masks Ignored
+		sizeof(PIXELFORMATDESCRIPTOR),
+		1,							  
+		PFD_DRAW_TO_WINDOW |		  
+		PFD_SUPPORT_OPENGL |		  
+		PFD_DOUBLEBUFFER,			  
+		PFD_TYPE_RGBA,				  
+		32,							  
+		0, 0, 0, 0, 0, 0,			  
+		0,							  
+		0,							  
+		0,							  
+		0, 0, 0, 0,					  
+		16,							  
+		8,							  
+		0,							  
+		PFD_MAIN_PLANE,				  
+		0,							  
+		0, 0, 0						  
 	};
 	
 	if (!(PixelFormat=ChoosePixelFormat(hDC,&pfd)))	// Did Windows Find A Matching Pixel Format?
@@ -215,3 +274,32 @@ int CSMainWindow::CheckMessages()
 	}
 	return 1;
 }
+
+char *CSMainWindow::GetFilename(char *title, bool open)
+{
+    char *rbuf=(char*)malloc(512); rbuf[0]=0;
+
+    OPENFILENAME ofn;
+    ZeroMemory( &ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = GetHWND();
+    ofn.lpstrFile = rbuf;
+    ofn.nMaxFile = 512;
+    ofn.lpstrFilter = "Graphs\0*.graph\0All\0*.txt\0\0";
+    ofn.nFilterIndex=1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrTitle = title;
+    ofn.Flags = OFN_PATHMUSTEXIST; if(open) ofn.Flags |= OFN_FILEMUSTEXIST;
+
+    if(open) GetOpenFileName( &ofn );
+    else GetSaveFileName( &ofn );
+
+    return rbuf;
+}
+
+void CSMainWindow::SetWindowTitle(const char *title)
+{
+    SetWindowText(GetHWND(),title);
+}
+

@@ -29,11 +29,15 @@
 #define KEY_SHIFT VK_SHIFT
 #define KEY_ESC VK_ESCAPE
 #define KEY_TAB VK_TAB
-#define KEY_BACKSPACE VK_BACKSPACE
+#define KEY_BACKSPACE VK_BACK
 #define KEY_DELETE VK_DELETE
 #define KEY_ENTER VK_RETURN
 #define KEY_HOME VK_HOME
 #define KEY_END VK_END
+#define KEY_UP VK_UP
+#define KEY_DOWN VK_DOWN
+#define KEY_LEFT VK_LEFT
+#define KEY_RIGHT VK_RIGHT
 static int KEY_GROUP_ACCEL[10] = { '1','2','3','4','5','6','7','8','9','0' };
 
 class CSMainWindow {

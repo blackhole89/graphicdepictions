@@ -931,7 +931,7 @@ void CSEngine::RunLogic()
         }
         ImGui::Separator();
         if(ImGui::MenuItem("Export to tikz...")) {
-            char *filename=wnd->GetFilename("Export",true);
+            char *filename=wnd->GetFilename("Export",false);
             if(filename && filename[0]) {
                 ExportTikz(&st,filename);
             }
@@ -1053,7 +1053,7 @@ void CSEngine::RunLogic()
         draw_list->AddCircle(p,4,0xFFFFFFFF,20,1);
         ImGui::Dummy(ImVec2(0,60));
         #define CenteredText(c,t) { ImGui::SetCursorPosX( (ImGui::GetWindowContentRegionWidth()-ImGui::CalcTextSize(t).x)/2 ); ImGui::TextColored(c,t); }
-        CenteredText(ImVec4(.7,.7,1,1),"graphic depictions (beta 1)");
+        CenteredText(ImVec4(.7,.7,1,1),"graphic depictions "VERSTRING);
         CenteredText(ImVec4(1,1,1,1),"© 2016 Matvey Soloviev\n<msoloviev@cs.cornell.edu>");
         ImGui::Separator();
         ImGui::Text("This program is licensed under the terms\nof the GNU General Public License version 3.\n\nAvailable online under:\nhttp://www.gnu.org/licenses/gpl-3.0.html");
@@ -1215,7 +1215,7 @@ void CSEngine::Run()
     gettimeofday(&tv,NULL);
     t=tv.tv_sec*1000000 + tv.tv_usec;
 #else
-	t = GetTickCount() * 1000;
+	t = GetTickCount() * 1000LL;
 #endif
     last_frame=t/(1000000LL/60);
 
@@ -1248,7 +1248,7 @@ void CSEngine::Run()
 		gettimeofday(&tv, NULL);
 		t = tv.tv_sec * 1000000 + tv.tv_usec;
 #else
-		t = GetTickCount() * 1000;
+		t = GetTickCount() * 1000LL;
 #endif
         int fdelta=(t/(1000000LL/60))-last_frame;
         //for(int i=0;i<fdelta;++i) {

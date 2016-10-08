@@ -21,7 +21,7 @@
 #undef APIENTRY
 #define GLFW_EXPOSE_NATIVE_WIN32
 #define GLFW_EXPOSE_NATIVE_WGL
-#include <GLFW/glfw3native.h>
+//#include <GLFW/glfw3native.h>
 #endif
 
 // Data
@@ -177,8 +177,8 @@ bool    ImGui_ImplGlfw_Init(CSMainWindow* window, bool install_callbacks)
     io.RenderDrawListsFn = ImGui_ImplGlfw_RenderDrawLists;      // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
     //io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
     //io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
-#ifdef _WIN32
-    io.ImeWindowHandle = glfwGetWin32Window(g_Window);
+#ifdef WIN32
+    io.ImeWindowHandle = s.e->wnd->GetHWND();//glfwGetWin32Window(g_Window);
 #endif
 
     return true;

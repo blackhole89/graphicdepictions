@@ -7,3 +7,6 @@ and made available under a separate permissive license (see imgui/LICENSE).
 Includes the String Literal font, which is Copyright (c) 2005 David P. Kovalchik
 and free for non-commercial use.
 
+Includes the V8 JavaScript engine, which is Copyright 2012, the V8 project authors.
+See v8/v8.h for license details.
+
