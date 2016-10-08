@@ -18,185 +18,185 @@ LIBDIR =
 LIB = -lXrender -lX11 -lGL -lv8
 LDFLAGS = 
 
-INC_DEBUG_WIN32 = $(INC)
-CFLAGS_DEBUG_WIN32 = $(CFLAGS) -std=c++14 -pg -g -W -O0 -I/usr/include/freetype2 -D_DEBUG -D_WINDOWS
-RESINC_DEBUG_WIN32 = $(RESINC)
-RCFLAGS_DEBUG_WIN32 = $(RCFLAGS)
-LIBDIR_DEBUG_WIN32 = $(LIBDIR)
-LIB_DEBUG_WIN32 = $(LIB) -lopenal -lfreetype -lpthread -lGL -lGLU -logg -lvorbis -lvorbisfile
-LDFLAGS_DEBUG_WIN32 = $(LDFLAGS) -pg
-OBJDIR_DEBUG_WIN32 = Debug
-DEP_DEBUG_WIN32 = 
-OUT_DEBUG_WIN32 = Debug/space
+INC_DEBUG_LINUX = $(INC)
+CFLAGS_DEBUG_LINUX = $(CFLAGS) -std=c++14 -pg -g -W -O0 -I/usr/include/freetype2 -D_DEBUG -D_WINDOWS
+RESINC_DEBUG_LINUX = $(RESINC)
+RCFLAGS_DEBUG_LINUX = $(RCFLAGS)
+LIBDIR_DEBUG_LINUX = $(LIBDIR)
+LIB_DEBUG_LINUX = $(LIB) -lopenal -lfreetype -lpthread -lGL -lGLU -logg -lvorbis -lvorbisfile
+LDFLAGS_DEBUG_LINUX = $(LDFLAGS) -pg
+OBJDIR_DEBUG_LINUX = Debug
+DEP_DEBUG_LINUX = 
+OUT_DEBUG_LINUX = Debug/gdepictions
 
-INC_RELEASE_WIN32 = $(INC)
-CFLAGS_RELEASE_WIN32 = $(CFLAGS) -std=c++14 -g -W -I/usr/include/freetype2 -DNDEBUG -D_WINDOWS
-RESINC_RELEASE_WIN32 = $(RESINC)
-RCFLAGS_RELEASE_WIN32 = $(RCFLAGS)
-LIBDIR_RELEASE_WIN32 = $(LIBDIR)
-LIB_RELEASE_WIN32 = $(LIB) -lGL -lGLU -lpthread -lopenal -lfreetype -logg -lvorbis -lvorbisfile
-LDFLAGS_RELEASE_WIN32 = $(LDFLAGS)
-OBJDIR_RELEASE_WIN32 = Release
-DEP_RELEASE_WIN32 = 
-OUT_RELEASE_WIN32 = Release/space
+INC_RELEASE_LINUX = $(INC)
+CFLAGS_RELEASE_LINUX = $(CFLAGS) -std=c++14 -g -W -I/usr/include/freetype2 -DNDEBUG -D_WINDOWS
+RESINC_RELEASE_LINUX = $(RESINC)
+RCFLAGS_RELEASE_LINUX = $(RCFLAGS)
+LIBDIR_RELEASE_LINUX = $(LIBDIR)
+LIB_RELEASE_LINUX = $(LIB) -lGL -lGLU -lpthread -lopenal -lfreetype -logg -lvorbis -lvorbisfile
+LDFLAGS_RELEASE_LINUX = $(LDFLAGS)
+OBJDIR_RELEASE_LINUX = Release
+DEP_RELEASE_LINUX = 
+OUT_RELEASE_LINUX = Release/gdepictions
 
-OBJ_DEBUG_WIN32 = $(OBJDIR_DEBUG_WIN32)/state.o $(OBJDIR_DEBUG_WIN32)/singletons.o $(OBJDIR_DEBUG_WIN32)/sound.o $(OBJDIR_DEBUG_WIN32)/space.o $(OBJDIR_DEBUG_WIN32)/stdafx.o $(OBJDIR_DEBUG_WIN32)/texpool.o $(OBJDIR_DEBUG_WIN32)/texture.o $(OBJDIR_DEBUG_WIN32)/ui.o $(OBJDIR_DEBUG_WIN32)/window.o $(OBJDIR_DEBUG_WIN32)/engine.o $(OBJDIR_DEBUG_WIN32)/export.o $(OBJDIR_DEBUG_WIN32)/file.o $(OBJDIR_DEBUG_WIN32)/fonts.o $(OBJDIR_DEBUG_WIN32)/graphics.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_demo.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_draw.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_impl_glfw.o
+OBJ_DEBUG_LINUX = $(OBJDIR_DEBUG_LINUX)/state.o $(OBJDIR_DEBUG_LINUX)/singletons.o $(OBJDIR_DEBUG_LINUX)/sound.o $(OBJDIR_DEBUG_LINUX)/space.o $(OBJDIR_DEBUG_LINUX)/stdafx.o $(OBJDIR_DEBUG_LINUX)/texpool.o $(OBJDIR_DEBUG_LINUX)/texture.o $(OBJDIR_DEBUG_LINUX)/ui.o $(OBJDIR_DEBUG_LINUX)/window.o $(OBJDIR_DEBUG_LINUX)/engine.o $(OBJDIR_DEBUG_LINUX)/export.o $(OBJDIR_DEBUG_LINUX)/file.o $(OBJDIR_DEBUG_LINUX)/fonts.o $(OBJDIR_DEBUG_LINUX)/graphics.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_demo.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_draw.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_impl_glfw.o
 
-OBJ_RELEASE_WIN32 = $(OBJDIR_RELEASE_WIN32)/state.o $(OBJDIR_RELEASE_WIN32)/singletons.o $(OBJDIR_RELEASE_WIN32)/sound.o $(OBJDIR_RELEASE_WIN32)/space.o $(OBJDIR_RELEASE_WIN32)/stdafx.o $(OBJDIR_RELEASE_WIN32)/texpool.o $(OBJDIR_RELEASE_WIN32)/texture.o $(OBJDIR_RELEASE_WIN32)/ui.o $(OBJDIR_RELEASE_WIN32)/window.o $(OBJDIR_RELEASE_WIN32)/engine.o $(OBJDIR_RELEASE_WIN32)/export.o $(OBJDIR_RELEASE_WIN32)/file.o $(OBJDIR_RELEASE_WIN32)/fonts.o $(OBJDIR_RELEASE_WIN32)/graphics.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_demo.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_draw.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_impl_glfw.o
+OBJ_RELEASE_LINUX = $(OBJDIR_RELEASE_LINUX)/state.o $(OBJDIR_RELEASE_LINUX)/singletons.o $(OBJDIR_RELEASE_LINUX)/sound.o $(OBJDIR_RELEASE_LINUX)/space.o $(OBJDIR_RELEASE_LINUX)/stdafx.o $(OBJDIR_RELEASE_LINUX)/texpool.o $(OBJDIR_RELEASE_LINUX)/texture.o $(OBJDIR_RELEASE_LINUX)/ui.o $(OBJDIR_RELEASE_LINUX)/window.o $(OBJDIR_RELEASE_LINUX)/engine.o $(OBJDIR_RELEASE_LINUX)/export.o $(OBJDIR_RELEASE_LINUX)/file.o $(OBJDIR_RELEASE_LINUX)/fonts.o $(OBJDIR_RELEASE_LINUX)/graphics.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_demo.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_draw.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_impl_glfw.o
 
-all: debug_win32 release_win32
+all: debug_linux release_linux
 
-clean: clean_debug_win32 clean_release_win32
+clean: clean_debug_linux clean_release_linux
 
-before_debug_win32: 
+before_debug_linux: 
 	test -d Debug || mkdir -p Debug
-	test -d $(OBJDIR_DEBUG_WIN32) || mkdir -p $(OBJDIR_DEBUG_WIN32)
-	test -d $(OBJDIR_DEBUG_WIN32)/imgui || mkdir -p $(OBJDIR_DEBUG_WIN32)/imgui
+	test -d $(OBJDIR_DEBUG_LINUX) || mkdir -p $(OBJDIR_DEBUG_LINUX)
+	test -d $(OBJDIR_DEBUG_LINUX)/imgui || mkdir -p $(OBJDIR_DEBUG_LINUX)/imgui
 
-after_debug_win32: 
+after_debug_linux: 
 
-debug_win32: before_debug_win32 out_debug_win32 after_debug_win32
+debug_linux: before_debug_linux out_debug_linux after_debug_linux
 
-out_debug_win32: before_debug_win32 $(OBJ_DEBUG_WIN32) $(DEP_DEBUG_WIN32)
-	$(LD) $(LIBDIR_DEBUG_WIN32) -o $(OUT_DEBUG_WIN32) $(OBJ_DEBUG_WIN32)  $(LDFLAGS_DEBUG_WIN32) $(LIB_DEBUG_WIN32)
+out_debug_linux: before_debug_linux $(OBJ_DEBUG_LINUX) $(DEP_DEBUG_LINUX)
+	$(LD) $(LIBDIR_DEBUG_LINUX) -o $(OUT_DEBUG_LINUX) $(OBJ_DEBUG_LINUX)  $(LDFLAGS_DEBUG_LINUX) $(LIB_DEBUG_LINUX)
 
-$(OBJDIR_DEBUG_WIN32)/state.o: state.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c state.cpp -o $(OBJDIR_DEBUG_WIN32)/state.o
+$(OBJDIR_DEBUG_LINUX)/state.o: state.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c state.cpp -o $(OBJDIR_DEBUG_LINUX)/state.o
 
-$(OBJDIR_DEBUG_WIN32)/singletons.o: singletons.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c singletons.cpp -o $(OBJDIR_DEBUG_WIN32)/singletons.o
+$(OBJDIR_DEBUG_LINUX)/singletons.o: singletons.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c singletons.cpp -o $(OBJDIR_DEBUG_LINUX)/singletons.o
 
-$(OBJDIR_DEBUG_WIN32)/sound.o: sound.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c sound.cpp -o $(OBJDIR_DEBUG_WIN32)/sound.o
+$(OBJDIR_DEBUG_LINUX)/sound.o: sound.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c sound.cpp -o $(OBJDIR_DEBUG_LINUX)/sound.o
 
-$(OBJDIR_DEBUG_WIN32)/space.o: space.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c space.cpp -o $(OBJDIR_DEBUG_WIN32)/space.o
+$(OBJDIR_DEBUG_LINUX)/space.o: space.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c space.cpp -o $(OBJDIR_DEBUG_LINUX)/space.o
 
-$(OBJDIR_DEBUG_WIN32)/stdafx.o: stdafx.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c stdafx.cpp -o $(OBJDIR_DEBUG_WIN32)/stdafx.o
+$(OBJDIR_DEBUG_LINUX)/stdafx.o: stdafx.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c stdafx.cpp -o $(OBJDIR_DEBUG_LINUX)/stdafx.o
 
-$(OBJDIR_DEBUG_WIN32)/texpool.o: texpool.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c texpool.cpp -o $(OBJDIR_DEBUG_WIN32)/texpool.o
+$(OBJDIR_DEBUG_LINUX)/texpool.o: texpool.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c texpool.cpp -o $(OBJDIR_DEBUG_LINUX)/texpool.o
 
-$(OBJDIR_DEBUG_WIN32)/texture.o: texture.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c texture.cpp -o $(OBJDIR_DEBUG_WIN32)/texture.o
+$(OBJDIR_DEBUG_LINUX)/texture.o: texture.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c texture.cpp -o $(OBJDIR_DEBUG_LINUX)/texture.o
 
-$(OBJDIR_DEBUG_WIN32)/ui.o: ui.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c ui.cpp -o $(OBJDIR_DEBUG_WIN32)/ui.o
+$(OBJDIR_DEBUG_LINUX)/ui.o: ui.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c ui.cpp -o $(OBJDIR_DEBUG_LINUX)/ui.o
 
-$(OBJDIR_DEBUG_WIN32)/window.o: window.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c window.cpp -o $(OBJDIR_DEBUG_WIN32)/window.o
+$(OBJDIR_DEBUG_LINUX)/window.o: window.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c window.cpp -o $(OBJDIR_DEBUG_LINUX)/window.o
 
-$(OBJDIR_DEBUG_WIN32)/engine.o: engine.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c engine.cpp -o $(OBJDIR_DEBUG_WIN32)/engine.o
+$(OBJDIR_DEBUG_LINUX)/engine.o: engine.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c engine.cpp -o $(OBJDIR_DEBUG_LINUX)/engine.o
 
-$(OBJDIR_DEBUG_WIN32)/export.o: export.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c export.cpp -o $(OBJDIR_DEBUG_WIN32)/export.o
+$(OBJDIR_DEBUG_LINUX)/export.o: export.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c export.cpp -o $(OBJDIR_DEBUG_LINUX)/export.o
 
-$(OBJDIR_DEBUG_WIN32)/file.o: file.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c file.cpp -o $(OBJDIR_DEBUG_WIN32)/file.o
+$(OBJDIR_DEBUG_LINUX)/file.o: file.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c file.cpp -o $(OBJDIR_DEBUG_LINUX)/file.o
 
-$(OBJDIR_DEBUG_WIN32)/fonts.o: fonts.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c fonts.cpp -o $(OBJDIR_DEBUG_WIN32)/fonts.o
+$(OBJDIR_DEBUG_LINUX)/fonts.o: fonts.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c fonts.cpp -o $(OBJDIR_DEBUG_LINUX)/fonts.o
 
-$(OBJDIR_DEBUG_WIN32)/graphics.o: graphics.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c graphics.cpp -o $(OBJDIR_DEBUG_WIN32)/graphics.o
+$(OBJDIR_DEBUG_LINUX)/graphics.o: graphics.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c graphics.cpp -o $(OBJDIR_DEBUG_LINUX)/graphics.o
 
-$(OBJDIR_DEBUG_WIN32)/imgui/imgui.o: imgui/imgui.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c imgui/imgui.cpp -o $(OBJDIR_DEBUG_WIN32)/imgui/imgui.o
+$(OBJDIR_DEBUG_LINUX)/imgui/imgui.o: imgui/imgui.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c imgui/imgui.cpp -o $(OBJDIR_DEBUG_LINUX)/imgui/imgui.o
 
-$(OBJDIR_DEBUG_WIN32)/imgui/imgui_demo.o: imgui/imgui_demo.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c imgui/imgui_demo.cpp -o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_demo.o
+$(OBJDIR_DEBUG_LINUX)/imgui/imgui_demo.o: imgui/imgui_demo.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c imgui/imgui_demo.cpp -o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_demo.o
 
-$(OBJDIR_DEBUG_WIN32)/imgui/imgui_draw.o: imgui/imgui_draw.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c imgui/imgui_draw.cpp -o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_draw.o
+$(OBJDIR_DEBUG_LINUX)/imgui/imgui_draw.o: imgui/imgui_draw.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c imgui/imgui_draw.cpp -o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_draw.o
 
-$(OBJDIR_DEBUG_WIN32)/imgui/imgui_freetype.o: imgui/imgui_freetype.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c imgui/imgui_freetype.cpp -o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_freetype.o
+$(OBJDIR_DEBUG_LINUX)/imgui/imgui_freetype.o: imgui/imgui_freetype.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c imgui/imgui_freetype.cpp -o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_freetype.o
 
-$(OBJDIR_DEBUG_WIN32)/imgui/imgui_impl_glfw.o: imgui/imgui_impl_glfw.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c imgui/imgui_impl_glfw.cpp -o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_impl_glfw.o
+$(OBJDIR_DEBUG_LINUX)/imgui/imgui_impl_glfw.o: imgui/imgui_impl_glfw.cpp
+	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c imgui/imgui_impl_glfw.cpp -o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_impl_glfw.o
 
-clean_debug_win32: 
-	rm -f $(OBJ_DEBUG_WIN32) $(OUT_DEBUG_WIN32)
+clean_debug_linux: 
+	rm -f $(OBJ_DEBUG_LINUX) $(OUT_DEBUG_LINUX)
 	rm -rf Debug
-	rm -rf $(OBJDIR_DEBUG_WIN32)
-	rm -rf $(OBJDIR_DEBUG_WIN32)/imgui
+	rm -rf $(OBJDIR_DEBUG_LINUX)
+	rm -rf $(OBJDIR_DEBUG_LINUX)/imgui
 
-before_release_win32: 
+before_release_linux: 
 	test -d Release || mkdir -p Release
-	test -d $(OBJDIR_RELEASE_WIN32) || mkdir -p $(OBJDIR_RELEASE_WIN32)
-	test -d $(OBJDIR_RELEASE_WIN32)/imgui || mkdir -p $(OBJDIR_RELEASE_WIN32)/imgui
+	test -d $(OBJDIR_RELEASE_LINUX) || mkdir -p $(OBJDIR_RELEASE_LINUX)
+	test -d $(OBJDIR_RELEASE_LINUX)/imgui || mkdir -p $(OBJDIR_RELEASE_LINUX)/imgui
 
-after_release_win32: 
+after_release_linux: 
 
-release_win32: before_release_win32 out_release_win32 after_release_win32
+release_linux: before_release_linux out_release_linux after_release_linux
 
-out_release_win32: before_release_win32 $(OBJ_RELEASE_WIN32) $(DEP_RELEASE_WIN32)
-	$(LD) $(LIBDIR_RELEASE_WIN32) -o $(OUT_RELEASE_WIN32) $(OBJ_RELEASE_WIN32)  $(LDFLAGS_RELEASE_WIN32) $(LIB_RELEASE_WIN32)
+out_release_linux: before_release_linux $(OBJ_RELEASE_LINUX) $(DEP_RELEASE_LINUX)
+	$(LD) $(LIBDIR_RELEASE_LINUX) -o $(OUT_RELEASE_LINUX) $(OBJ_RELEASE_LINUX)  $(LDFLAGS_RELEASE_LINUX) $(LIB_RELEASE_LINUX)
 
-$(OBJDIR_RELEASE_WIN32)/state.o: state.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c state.cpp -o $(OBJDIR_RELEASE_WIN32)/state.o
+$(OBJDIR_RELEASE_LINUX)/state.o: state.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c state.cpp -o $(OBJDIR_RELEASE_LINUX)/state.o
 
-$(OBJDIR_RELEASE_WIN32)/singletons.o: singletons.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c singletons.cpp -o $(OBJDIR_RELEASE_WIN32)/singletons.o
+$(OBJDIR_RELEASE_LINUX)/singletons.o: singletons.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c singletons.cpp -o $(OBJDIR_RELEASE_LINUX)/singletons.o
 
-$(OBJDIR_RELEASE_WIN32)/sound.o: sound.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c sound.cpp -o $(OBJDIR_RELEASE_WIN32)/sound.o
+$(OBJDIR_RELEASE_LINUX)/sound.o: sound.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c sound.cpp -o $(OBJDIR_RELEASE_LINUX)/sound.o
 
-$(OBJDIR_RELEASE_WIN32)/space.o: space.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c space.cpp -o $(OBJDIR_RELEASE_WIN32)/space.o
+$(OBJDIR_RELEASE_LINUX)/space.o: space.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c space.cpp -o $(OBJDIR_RELEASE_LINUX)/space.o
 
-$(OBJDIR_RELEASE_WIN32)/stdafx.o: stdafx.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c stdafx.cpp -o $(OBJDIR_RELEASE_WIN32)/stdafx.o
+$(OBJDIR_RELEASE_LINUX)/stdafx.o: stdafx.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c stdafx.cpp -o $(OBJDIR_RELEASE_LINUX)/stdafx.o
 
-$(OBJDIR_RELEASE_WIN32)/texpool.o: texpool.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c texpool.cpp -o $(OBJDIR_RELEASE_WIN32)/texpool.o
+$(OBJDIR_RELEASE_LINUX)/texpool.o: texpool.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c texpool.cpp -o $(OBJDIR_RELEASE_LINUX)/texpool.o
 
-$(OBJDIR_RELEASE_WIN32)/texture.o: texture.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c texture.cpp -o $(OBJDIR_RELEASE_WIN32)/texture.o
+$(OBJDIR_RELEASE_LINUX)/texture.o: texture.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c texture.cpp -o $(OBJDIR_RELEASE_LINUX)/texture.o
 
-$(OBJDIR_RELEASE_WIN32)/ui.o: ui.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c ui.cpp -o $(OBJDIR_RELEASE_WIN32)/ui.o
+$(OBJDIR_RELEASE_LINUX)/ui.o: ui.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c ui.cpp -o $(OBJDIR_RELEASE_LINUX)/ui.o
 
-$(OBJDIR_RELEASE_WIN32)/window.o: window.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c window.cpp -o $(OBJDIR_RELEASE_WIN32)/window.o
+$(OBJDIR_RELEASE_LINUX)/window.o: window.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c window.cpp -o $(OBJDIR_RELEASE_LINUX)/window.o
 
-$(OBJDIR_RELEASE_WIN32)/engine.o: engine.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c engine.cpp -o $(OBJDIR_RELEASE_WIN32)/engine.o
+$(OBJDIR_RELEASE_LINUX)/engine.o: engine.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c engine.cpp -o $(OBJDIR_RELEASE_LINUX)/engine.o
 
-$(OBJDIR_RELEASE_WIN32)/export.o: export.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c export.cpp -o $(OBJDIR_RELEASE_WIN32)/export.o
+$(OBJDIR_RELEASE_LINUX)/export.o: export.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c export.cpp -o $(OBJDIR_RELEASE_LINUX)/export.o
 
-$(OBJDIR_RELEASE_WIN32)/file.o: file.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c file.cpp -o $(OBJDIR_RELEASE_WIN32)/file.o
+$(OBJDIR_RELEASE_LINUX)/file.o: file.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c file.cpp -o $(OBJDIR_RELEASE_LINUX)/file.o
 
-$(OBJDIR_RELEASE_WIN32)/fonts.o: fonts.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c fonts.cpp -o $(OBJDIR_RELEASE_WIN32)/fonts.o
+$(OBJDIR_RELEASE_LINUX)/fonts.o: fonts.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c fonts.cpp -o $(OBJDIR_RELEASE_LINUX)/fonts.o
 
-$(OBJDIR_RELEASE_WIN32)/graphics.o: graphics.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c graphics.cpp -o $(OBJDIR_RELEASE_WIN32)/graphics.o
+$(OBJDIR_RELEASE_LINUX)/graphics.o: graphics.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c graphics.cpp -o $(OBJDIR_RELEASE_LINUX)/graphics.o
 
-$(OBJDIR_RELEASE_WIN32)/imgui/imgui.o: imgui/imgui.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c imgui/imgui.cpp -o $(OBJDIR_RELEASE_WIN32)/imgui/imgui.o
+$(OBJDIR_RELEASE_LINUX)/imgui/imgui.o: imgui/imgui.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c imgui/imgui.cpp -o $(OBJDIR_RELEASE_LINUX)/imgui/imgui.o
 
-$(OBJDIR_RELEASE_WIN32)/imgui/imgui_demo.o: imgui/imgui_demo.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c imgui/imgui_demo.cpp -o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_demo.o
+$(OBJDIR_RELEASE_LINUX)/imgui/imgui_demo.o: imgui/imgui_demo.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c imgui/imgui_demo.cpp -o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_demo.o
 
-$(OBJDIR_RELEASE_WIN32)/imgui/imgui_draw.o: imgui/imgui_draw.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c imgui/imgui_draw.cpp -o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_draw.o
+$(OBJDIR_RELEASE_LINUX)/imgui/imgui_draw.o: imgui/imgui_draw.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c imgui/imgui_draw.cpp -o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_draw.o
 
-$(OBJDIR_RELEASE_WIN32)/imgui/imgui_freetype.o: imgui/imgui_freetype.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c imgui/imgui_freetype.cpp -o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_freetype.o
+$(OBJDIR_RELEASE_LINUX)/imgui/imgui_freetype.o: imgui/imgui_freetype.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c imgui/imgui_freetype.cpp -o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_freetype.o
 
-$(OBJDIR_RELEASE_WIN32)/imgui/imgui_impl_glfw.o: imgui/imgui_impl_glfw.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c imgui/imgui_impl_glfw.cpp -o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_impl_glfw.o
+$(OBJDIR_RELEASE_LINUX)/imgui/imgui_impl_glfw.o: imgui/imgui_impl_glfw.cpp
+	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c imgui/imgui_impl_glfw.cpp -o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_impl_glfw.o
 
-clean_release_win32: 
-	rm -f $(OBJ_RELEASE_WIN32) $(OUT_RELEASE_WIN32)
+clean_release_linux: 
+	rm -f $(OBJ_RELEASE_LINUX) $(OUT_RELEASE_LINUX)
 	rm -rf Release
-	rm -rf $(OBJDIR_RELEASE_WIN32)
-	rm -rf $(OBJDIR_RELEASE_WIN32)/imgui
+	rm -rf $(OBJDIR_RELEASE_LINUX)
+	rm -rf $(OBJDIR_RELEASE_LINUX)/imgui
 
-.PHONY: before_debug_win32 after_debug_win32 clean_debug_win32 before_release_win32 after_release_win32 clean_release_win32
+.PHONY: before_debug_linux after_debug_linux clean_debug_linux before_release_linux after_release_linux clean_release_linux
 
