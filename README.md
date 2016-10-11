@@ -7,6 +7,9 @@ Possible applications include typesetting graphs for academic papers and present
 
 You are looking at an early release, and a lot of features and polish are still missing. I am grateful for any bug reports, pull requests, feature suggestions and other feedback.
 
+<a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png" width="300" /></a> <a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png" width="300" /></a> 
+ 
+
 How to install
 --------------
 
