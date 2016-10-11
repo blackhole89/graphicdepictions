@@ -27,6 +27,8 @@ How to use
 
 The program uses a [Blender](https://www.blender.org/)-inspired modal keyboard-and-mouse interface. Most actions are performed by pressing some key or key combination to _initiate_ an action at the mouse position. When more input is necessary (e.g. a second endpoint for a new edge, or the other corner of a box selection), the action can be completed by moving the mouse and either committing the results by clicking or cancelling by pressing Escape. The state in which no complex action is awaiting more input shall be referred to as _neutral mode_.
 
+### Editing the graph
+
 The following list of examples doubles as an outline of basic workflow:
 
 * `V` to create a selected vertex at the current cursor position.
@@ -39,12 +41,16 @@ The following list of examples doubles as an outline of basic workflow:
 * `D` deletes all edges between selected vertices.
 * `G` initiates moving of the currently selected vertices by moving the mouse pointer. Click the graph view with the left mouse button to place the vertices at their current location, or press `Esc` to cancel.
 
+### Moving the camera
+
 The camera may be manipulated in a variety of ways.
 
 * To pan (slide) the graph, hold and drag the middle mouse button or mouse wheel.
 * To zoom in and out, roll the mouse wheel up or down respectively.
 * When operating in 3D mode (Layout > Unlock 3D), hold and drag the right mouse button to rotate the view in space.
 * When a nonzero number of vertices is selected, press `M` to center the view on the selected vertices.
+
+### Writing and running scripts
 
 A key feature of graphic depictions is the ability to run JavaScript programs on the graph. To create a script, press the `Add` button in the `Scripts` window, and click on the `New script` entry that is created in the list. A script can either be applied to each selected node (default) or the whole graph (disable the `on nodes` option in the script editor). A few example scripts are included with the distribution, and if you are already familiar with JavaScript, these may be the fastest way to familiarise yourself with the environment. The important basics are the following:
 
