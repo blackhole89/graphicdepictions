@@ -935,7 +935,7 @@ void CSEngine::RunLogic()
 
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(260,30),ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(300,30),ImGuiSetCond_FirstUseEver);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(3,1));
     ImGui::Begin("Selection Groups",NULL,ImGuiWindowFlags_AlwaysAutoResize);
@@ -978,8 +978,9 @@ void CSEngine::RunLogic()
 
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(s.wnd->w-150,30),ImGuiSetCond_FirstUseEver);
-    ImGui::SetNextWindowCollapsed(true,ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(5,250),ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200,150),ImGuiSetCond_FirstUseEver);
+    //ImGui::SetNextWindowCollapsed(true,ImGuiSetCond_FirstUseEver);
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(10,1));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(4,8));
@@ -1172,12 +1173,13 @@ void CSEngine::RunLogic()
         ImGui::EndPopup();
     }
 
-
+    ImGui::SetNextWindowSize(ImVec2(420,420),ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(200,200),ImGuiSetCond_FirstUseEver);
     if(rs_every_node && ImGui::Begin("Run script for selected nodes")) {
         static char buf[4096]={0};
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1));
         ImGui::BeginChild("ScrollingRegion", ImVec2(0,-ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
-        ImGui::InputTextMultiline("##source",buf,4096,ImVec2(-1.0f, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_AllowTabInput);
+        ImGui::InputTextMultiline("##source",editor_buf,4096,ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
         ImGui::EndChild();
         if(ImGui::Button("Compile and Run")) {
             Handle<Script> sc;
@@ -1207,6 +1209,8 @@ void CSEngine::RunLogic()
     if(editor_index>=0) {
         static char title[128];
         sprintf(title,"%s - Script Editor###scripted", editor_tbuf);
+        ImGui::SetNextWindowSize(ImVec2(400,400),ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(200,200),ImGuiSetCond_FirstUseEver);
         ImGui::Begin(title);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,2));
         ImGui::SameLine(9.0f);
