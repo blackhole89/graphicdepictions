@@ -221,6 +221,8 @@ Handle<Value> ForeachCallback(const Arguments &args)
 
         fn->Call(s.e->v8ctx->Global(), 1, val);
     }
+
+    return v8::Undefined();
 }
 
 void CSEngine::Init(CSMainWindow *wndw)
@@ -637,30 +639,33 @@ void CSEngine::RunLogic()
     } else if(keys[KEY_Q]) {
         action=AC_RELAX;
     } else if(keys[KEY_M]) {
-        float sx=0,sy=0,sz=0;
-        for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
-            if( (*i)->selected ) {
-                sx += (*i)->pos[0];
-                sy += (*i)->pos[1];
-                sz += (*i)->pos[2];
-            }
-        }
-        sx *= 1.0f/st.nselected;
-        sy *= 1.0f/st.nselected;
-        sz *= 1.0f/st.nselected;
-
-        if(!keys[KEY_SHIFT]) {
-            graphics.tx=sx;
-            graphics.ty=sy;
-            graphics.tz=sz;
-        } else {
+        if(st.nselected) {
+            float sx=0,sy=0,sz=0;
             for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
                 if( (*i)->selected ) {
-                    (*i)->pos[0] += graphics.tx-sx;
-                    (*i)->pos[1] += graphics.ty-sy;
-                    (*i)->pos[2] += graphics.tz-sz;
+                    sx += (*i)->pos[0];
+                    sy += (*i)->pos[1];
+                    sz += (*i)->pos[2];
                 }
-            }        }
+            }
+            sx *= 1.0f/st.nselected;
+            sy *= 1.0f/st.nselected;
+            sz *= 1.0f/st.nselected;
+
+            if(!keys[KEY_SHIFT]) {
+                graphics.tx=sx;
+                graphics.ty=sy;
+                graphics.tz=sz;
+            } else {
+                for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
+                    if( (*i)->selected ) {
+                        (*i)->pos[0] += graphics.tx-sx;
+                        (*i)->pos[1] += graphics.ty-sy;
+                        (*i)->pos[2] += graphics.tz-sz;
+                    }
+                }
+            }
+        }
     }
 
     /* Relax layout energy */
