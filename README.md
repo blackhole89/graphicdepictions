@@ -102,3 +102,9 @@ For Windows builds, I strongly recommend compiling with MinGW-w64 (g++-mingw-w64
 
 I expect the only significant obstacle to compiling from MSVC++ to be V8, too; while the 3.x libv8 sources include some provisions for a Microsoft build environment, they seem to be based on several assumptions about standard compliancy and state of the platform headers that no longer hold true for more recent versions.
 
+Known issues
+------------
+
+* Drawing lots of node labels can be slow on some platforms. Generally, the "separate texture for each glyph" approach my font implementation (`fonts.cpp`) uses seems to be much slower than imgui's font atlas + texture coordinates one; I will eventually switch over to it.
+* In the Windows binary build, TikZ export fails to correctly compute node label colours. This is a complete and utter mystery to me at the moment.
+
