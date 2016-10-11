@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -42,6 +42,7 @@ void CSGraphics::Init(CSEngine *ep)
 	A4(config.bg, 1.0, 1.0, 1.0, 1.0);
 	A4(config.grid, 0.7, 0.7, 0.7, 1.0);
 	A4(config.edge, 0.4, 0.4, 0.8, 0.6);
+	A4(config.e_select, 1.0, 0.0, 0.0, 0.6);
 	A4(config.n_edge, 0.0, 0.0, 0.0, 1.0);
 	A4(config.n_select, 1.0, 0.0, 0.0, 1.0);
 	A4(config.n_fill, 1.0, 1.0, 1.0, 1.0);
@@ -217,13 +218,36 @@ void CSGraphics::DoDraw()
 
 	glDisable(GL_DEPTH_TEST);
     glLineWidth(3);
+    glColor4fv(config.edge);
     for(auto i = s.e->st.edges.begin(); i!=s.e->st.edges.end(); ++i) {
-        glColor4fv(config.edge);
         glBegin(GL_LINES);
             glVertex3fv( (*i)->n1->pos );
             glVertex3fv( (*i)->n2->pos );
         glEnd();
 	}
+
+	/* pending edges */
+	if( s.e->action==CSEngine::AC_EDGE ) {
+        glColor4fv(config.e_select);
+        float w_tx, w_ty, w_tz; // target position in world space
+        CSState::CSNode *t;
+        /* snap provisional edge to correct target vertex */
+        if( t = s.e->GetClosestVertex(mx, my, 20.0f) ) {
+            w_tx = t->pos[0];
+            w_ty = t->pos[1];
+            w_tz = t->pos[2];
+        } else {
+            ScreenToSpace( mx, my, w_tx, w_ty, w_tz);
+        }
+        for(auto i = s.e->st.nodes.begin(); i!=s.e->st.nodes.end(); ++i) {
+            if( (*i)->selected ) {
+                glBegin(GL_LINES);
+                    glVertex3fv( (*i)->pos );
+                    glVertex3f( w_tx, w_ty, w_tz );
+                glEnd();            }
+        }
+	}
+
 	glLineWidth(1);
 	glEnable(GL_DEPTH_TEST);
 

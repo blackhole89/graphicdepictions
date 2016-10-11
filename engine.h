@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -141,7 +141,8 @@ public:
         AC_GO,
         AC_SCALE,
         AC_SELECT,
-        AC_RELAX
+        AC_RELAX,
+        AC_EDGE
     } action;
 
     v8::HandleScope v8hs;
@@ -183,9 +184,15 @@ public:
     void CancelDragging();
 	void SetSelectionRect(int x0, int y0, int x1, int y1);
 
+	/* closest vertex in screenspace, within rmax */
+	CSState::CSNode* GetClosestVertex(int x, int y, float rmax);
+
 	bool CompileScript(const char *code,const char *name, v8::Handle<v8::Script> &out);
 	bool RunScriptForNode(CSState::CSNode *n, v8::Handle<v8::Script> script);
 	bool RunScript(v8::Handle<v8::Script> script);
+
+	/* actions; eventually should pull everything out here */
+	void AcEdge(float x, float y);
 };
 
 typedef struct {

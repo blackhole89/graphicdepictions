@@ -420,20 +420,28 @@ void CSEngine::Click(int btn, int x,int y)
 
     if(action==AC_NOTHING && (btn==1 || ( !st.nselected && btn==3) )  )  {
         // select?
-        st.nselected=0;
-        bool got_one = false;
-        for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
-            float sx, sy;
-            graphics.SpaceToScreen( (*i)->pos[0], (*i)->pos[1], (*i)->pos[2], sx, sy);
-
-            if(!keys[KEY_SHIFT]) (*i)->selected=false;
-
-            if( !got_one && abs( sx-graphics.mx)<=5 && abs(sy-graphics.my)<=5) {
-                got_one=true;
-                (*i)->selected=true;
-                st.nselected=1;
+        if(!keys[KEY_SHIFT]) {
+            st.nselected=0;
+            for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
+                (*i)->selected=false;
             }
-        }    }
+        }
+        if( CSState::CSNode *v = GetClosestVertex(graphics.mx, graphics.my, 20.0f) ) {
+            if(!v->selected) st.nselected += 1;
+            v->selected = true;
+        }
+    } else if(action==AC_EDGE && btn==1) {
+        // commit edge, but don't add more
+        CSState::CSNode *v;
+        if( v = GetClosestVertex(graphics.mx, graphics.my, 20.0f) ) {
+            for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
+                if((*i)->selected) {
+                    st.AddEdge(v,*i);
+                }
+            }
+        }
+        action = AC_NOTHING;
+    }
 
     if(btn==4) {
         graphics.zoom /= 1.1;
@@ -483,6 +491,26 @@ void CSEngine::SetSelectionRect(int x0, int y0, int x1, int y1)
     graphics.sy1=y1;
 }
 
+CSState::CSNode* CSEngine::GetClosestVertex(int x, int y, float rmax)
+{
+    float dmin=rmax*rmax;
+    CSState::CSNode *closest = NULL;
+
+    for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
+        float sx, sy;
+        graphics.SpaceToScreen( (*i)->pos[0], (*i)->pos[1], (*i)->pos[2], sx, sy);
+
+        float d = (sx-x)*(sx-x) + (sy-y)*(sy-y);
+
+        if(d<dmin) {
+            closest = *i;
+            dmin = d;
+        }
+    }
+
+    return closest;
+}
+
 bool CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
 {
     bool reassign=false;
@@ -530,6 +558,32 @@ bool CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
         return false;
     }
     return true;
+}
+
+void CSEngine::AcEdge(float x, float y)
+{
+    CSState::CSNode* v;
+    if(action == AC_EDGE) {
+        if( v = GetClosestVertex(x, y, 20.0f) ) {
+            for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
+                if((*i)->selected) {
+                    st.AddEdge(v,*i);
+                }
+                (*i)->selected = false;
+            }
+            v->selected = true;
+            action = AC_EDGE;
+        } else action = AC_NOTHING;
+    } else {
+        if( v = GetClosestVertex(x, y, 20.0f) ) {
+            st.nselected=1;
+            for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
+                (*i)->selected=false;
+            }
+            v->selected = true;
+            action = AC_EDGE;
+        }
+    }
 }
 
 void CSEngine::RunLogic()
@@ -724,8 +778,13 @@ void CSEngine::RunLogic()
                 }
             }
         }
+    } else if(keys[KEY_E]) {
+        keys[KEY_E]=false;
+        CSState::CSNode *v;
+        AcEdge(graphics.mx, graphics.my);
     } else if(keys[KEY_DELETE]) {
         float x,y,z;
+        action = AC_NOTHING;
         graphics.ScreenToSpace(graphics.mx, graphics.my,x, y,z);
         keys[KEY_DELETE]=false;
         for(auto i=st.nodes.begin(); i!=st.nodes.end(); ) {
@@ -758,7 +817,8 @@ void CSEngine::RunLogic()
         if(ImGui::MenuItem("Add node","V")) {
             CSState::CSNode *n = st.AddNode( x,y,z );
             n->selected = true;
-            ++st.nselected;        }
+            ++st.nselected;
+        }
         if(ImGui::MenuItem("Connect nodes","C")) {
             for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
                 for(auto j=st.nodes.begin(); j!=st.nodes.end(); ++j) {
@@ -768,6 +828,20 @@ void CSEngine::RunLogic()
                 }
             }
         }
+        if(ImGui::MenuItem("Add edge","E")) {
+            AcEdge(graphics.sx0,graphics.sy0);
+        }
+        ImGui::Separator();
+        if(ImGui::MenuItem("Extrude selection","X")) {
+            st.ExtrudeSelection();
+            action=AC_GO;
+            graphics.sx0=graphics.mx;
+            graphics.sy0=graphics.my;
+            graphics.dragging1=true;
+            graphics.sx1=graphics.mx;
+            graphics.sy1=graphics.my;
+        }
+
         ImGui::Separator();
         if(ImGui::MenuItem("Delete nodes","Del")) {
             for(auto i=st.nodes.begin(); i!=st.nodes.end(); ) {
@@ -1051,6 +1125,7 @@ void CSEngine::RunLogic()
     case AC_SCALE: ImGui::MenuItem("Scaling nodes.",NULL,false,false); break;
     case AC_SELECT: ImGui::MenuItem("Selecting in rectangle.",NULL,false,false); break;
     case AC_RELAX: ImGui::MenuItem("Relaxing edges.",NULL,false,false); break;
+    case AC_EDGE: ImGui::MenuItem("Adding an edge.",NULL,false,false); break;
     }
 
     ImGui::EndMainMenuBar();

@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -192,10 +192,13 @@ int CSMainWindow::CheckMessages()
 
             case ButtonRelease:
             {
-                //printf("buttonrelease %d (%d,%d) from (%d,%d)\n",event.xbutton.button,event.xbutton.x,event.xbutton.y,px,py);
-                if( (abs(px-event.xbutton.x) + abs(py-event.xbutton.y))<DRAG_THRESHOLD ) s.e->Click(event.xbutton.button,event.xbutton.x,event.xbutton.y);
                 s.e->keys[event.xbutton.button]=false;
-                s.e->CancelDragging();
+                if(!ImGui::GetIO().WantCaptureMouse) {
+                    if( (abs(px-event.xbutton.x) + abs(py-event.xbutton.y))<DRAG_THRESHOLD ) {
+                        s.e->Click(event.xbutton.button,event.xbutton.x,event.xbutton.y);
+                    }
+                    s.e->CancelDragging();
+                }
             }
             break;
 

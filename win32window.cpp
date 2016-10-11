@@ -56,17 +56,19 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,
 		case WM_LBUTTONUP:
         case WM_MBUTTONUP:
         case WM_RBUTTONUP:
-            if( (abs(wnd->px-LOWORD(lParam)) + abs(wnd->py-HIWORD(lParam)))<DRAG_THRESHOLD ) s.e->Click(1, LOWORD(lParam), HIWORD(lParam));
-
             switch(uMsg) {
             case WM_LBUTTONUP: button=1; break;
             case WM_MBUTTONUP: button=2; break;
             case WM_RBUTTONUP: button=3; break;
             }
+
             s.e->keys[button]=false;
-           
-            s.e->CancelDragging();
-			//s.e->LClick(lParam&0xFFFF,(lParam&0xFFFF0000)>>16);
+
+            if(!ImGui::GetIO().WantCaptureMouse) {
+                if( (abs(wnd->px-LOWORD(lParam)) + abs(wnd->py-HIWORD(lParam)))<DRAG_THRESHOLD ) s.e->Click(1, LOWORD(lParam), HIWORD(lParam));
+
+                s.e->CancelDragging();
+            }
 			break;
         case WM_MOUSEWHEEL:
             printf("wheel %08X %08X %d\n",lParam, wParam, GET_WHEEL_DELTA_WPARAM(wParam));

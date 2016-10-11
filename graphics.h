@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -40,6 +40,7 @@ public:
         float bg[4];
         float grid[4];
         float edge[4];
+        float e_select[4];
         float n_edge[4];
         float n_fill[4];
         float n_select[4];
