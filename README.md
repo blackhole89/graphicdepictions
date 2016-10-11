@@ -3,7 +3,7 @@ graphic depictions
 
 This program is a graphical workbench for creating and manipulating graphs and running JavaScript on them to automate a variety of calculations.
 
-Possible applications include typesetting graphs for academic papers and presentations, looking for counterexamples to conjectures and testing graph algorithms.
+Possible applications include typesetting graphs for academic papers and presentations (it exports to [TikZ](https://en.wikipedia.org/wiki/PGF/TikZ)), looking for counterexamples to conjectures and testing graph algorithms.
 
 You are looking at an early release, and a lot of features and polish are still missing. I am grateful for any bug reports, pull requests, feature suggestions and other feedback.
 
