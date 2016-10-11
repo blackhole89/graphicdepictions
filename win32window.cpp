@@ -43,14 +43,13 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,
                     //printf("click suppressed\n");
             wnd->px=wnd->py=-999;                }
 
-            printf("lbuttondown %d %d\n",s.e->wnd->px, s.e->wnd->py);
-
             int button;
             switch(uMsg) {
             case WM_LBUTTONDOWN: button=1; break;
             case WM_MBUTTONDOWN: button=2; break;
             case WM_RBUTTONDOWN: button=3; break;
             }
+            printf("button%ddown %d %d\n",button,s.e->wnd->px, s.e->wnd->py);
             s.e->keys[button]=true;
 			break;
 		case WM_LBUTTONUP:
@@ -65,7 +64,7 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,
             s.e->keys[button]=false;
 
             if(!ImGui::GetIO().WantCaptureMouse) {
-                if( (abs(wnd->px-LOWORD(lParam)) + abs(wnd->py-HIWORD(lParam)))<DRAG_THRESHOLD ) s.e->Click(1, LOWORD(lParam), HIWORD(lParam));
+                if( (abs(wnd->px-LOWORD(lParam)) + abs(wnd->py-HIWORD(lParam)))<DRAG_THRESHOLD ) s.e->Click(button, LOWORD(lParam), HIWORD(lParam));
 
                 s.e->CancelDragging();
             }
