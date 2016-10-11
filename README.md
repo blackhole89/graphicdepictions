@@ -18,6 +18,8 @@ The easiest way to use this program is to pull one of the binary builds:
 * [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.1.tar.gz)
 * [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.1-win64.zip)
 
+Once you have unpacked the relevant package, switch into the directory contained and run the binary (`./gdepictions` in a Linux shell, or `gdepictions.exe` on Windows).
+
 On Linux, you additionally require a version of libv8 (>= 3.14.5 or thereabouts, as found in the Debian and Ubuntu repositories as `libv8-3.14.5`). The Windows build includes the required DLLs.
 
 You may also try to compile it yourself, which may involve some effort. In fact, natively creating a Windows binary of the old version of V8 that graphic depictions is based on turned out to be so painful that I gave up and cross-compiled everything using mingw-w64. If you are not discouraged, consult the "How to compile from source" section further below.
