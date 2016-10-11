@@ -725,6 +725,22 @@ void CSEngine::RunLogic()
     } else if(graphics.dragging1 && action==AC_SCALE) {
     }
 
+    /* move with arrow keys */
+    float kdx=0.0f, kdy=0.0f;
+    if(keys[KEY_UP]) kdy=4.f;
+    else if(keys[KEY_DOWN]) kdy=-4.f;
+    if(keys[KEY_LEFT]) kdx=4.f;
+    else if(keys[KEY_RIGHT]) kdx=-4.f;
+    if(kdx!=0.0f||kdy!=0.0f) {
+        float gx0,gy0,gz0,gx1,gy1,gz1;
+        graphics.ScreenToSpace(0.0f,0.0f,gx0,gy0,gz0);
+        graphics.ScreenToSpace(kdx,kdy,gx1,gy1,gz1);
+
+        graphics.tx -= gx1-gx0;
+        graphics.ty -= gy1-gy0;
+        graphics.tz -= gz1-gz0;
+    }
+
     if(keys[KEY_V]) {
         float x,y,z;
         graphics.ScreenToSpace(graphics.mx, graphics.my,x, y,z);

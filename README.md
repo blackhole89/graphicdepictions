@@ -45,7 +45,7 @@ The following list of examples doubles as an outline of basic workflow:
 
 The camera may be manipulated in a variety of ways.
 
-* To pan (slide) the graph, hold and drag the middle mouse button or mouse wheel.
+* To pan (slide) the graph, hold and drag the middle mouse button or mouse wheel, or alternatively use the arrow keys.
 * To zoom in and out, roll the mouse wheel up or down respectively.
 * When operating in 3D mode (Layout > Unlock 3D), hold and drag the right mouse button to rotate the view in space.
 * When a nonzero number of vertices is selected, press `M` to center the view on the selected vertices.
