@@ -23,7 +23,7 @@ CFLAGS_DEBUG_LINUX = $(CFLAGS) -std=c++14 -pg -g -W -O0 -I/usr/include/freetype2
 RESINC_DEBUG_LINUX = $(RESINC)
 RCFLAGS_DEBUG_LINUX = $(RCFLAGS)
 LIBDIR_DEBUG_LINUX = $(LIBDIR)
-LIB_DEBUG_LINUX = $(LIB) -lopenal -lfreetype -lpthread -lGL -lGLU -logg -lvorbis -lvorbisfile
+LIB_DEBUG_LINUX = $(LIB) -lfreetype -lpthread -lGL -lGLU 
 LDFLAGS_DEBUG_LINUX = $(LDFLAGS) -pg
 OBJDIR_DEBUG_LINUX = Debug
 DEP_DEBUG_LINUX = 
@@ -34,15 +34,15 @@ CFLAGS_RELEASE_LINUX = $(CFLAGS) -std=c++14 -g -W -I/usr/include/freetype2 -DNDE
 RESINC_RELEASE_LINUX = $(RESINC)
 RCFLAGS_RELEASE_LINUX = $(RCFLAGS)
 LIBDIR_RELEASE_LINUX = $(LIBDIR)
-LIB_RELEASE_LINUX = $(LIB) -lGL -lGLU -lpthread -lopenal -lfreetype -logg -lvorbis -lvorbisfile
+LIB_RELEASE_LINUX = $(LIB) -lGL -lGLU -lpthread -lfreetype
 LDFLAGS_RELEASE_LINUX = $(LDFLAGS)
 OBJDIR_RELEASE_LINUX = Release
 DEP_RELEASE_LINUX = 
 OUT_RELEASE_LINUX = Release/gdepictions
 
-OBJ_DEBUG_LINUX = $(OBJDIR_DEBUG_LINUX)/state.o $(OBJDIR_DEBUG_LINUX)/singletons.o $(OBJDIR_DEBUG_LINUX)/sound.o $(OBJDIR_DEBUG_LINUX)/space.o $(OBJDIR_DEBUG_LINUX)/stdafx.o $(OBJDIR_DEBUG_LINUX)/texpool.o $(OBJDIR_DEBUG_LINUX)/texture.o $(OBJDIR_DEBUG_LINUX)/ui.o $(OBJDIR_DEBUG_LINUX)/window.o $(OBJDIR_DEBUG_LINUX)/engine.o $(OBJDIR_DEBUG_LINUX)/export.o $(OBJDIR_DEBUG_LINUX)/file.o $(OBJDIR_DEBUG_LINUX)/fonts.o $(OBJDIR_DEBUG_LINUX)/graphics.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_demo.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_draw.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_impl_glfw.o
+OBJ_DEBUG_LINUX = $(OBJDIR_DEBUG_LINUX)/state.o $(OBJDIR_DEBUG_LINUX)/singletons.o $(OBJDIR_DEBUG_LINUX)/space.o $(OBJDIR_DEBUG_LINUX)/stdafx.o $(OBJDIR_DEBUG_LINUX)/texpool.o $(OBJDIR_DEBUG_LINUX)/texture.o $(OBJDIR_DEBUG_LINUX)/window.o $(OBJDIR_DEBUG_LINUX)/engine.o $(OBJDIR_DEBUG_LINUX)/export.o $(OBJDIR_DEBUG_LINUX)/file.o $(OBJDIR_DEBUG_LINUX)/fonts.o $(OBJDIR_DEBUG_LINUX)/graphics.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_demo.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_draw.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_impl_glfw.o
 
-OBJ_RELEASE_LINUX = $(OBJDIR_RELEASE_LINUX)/state.o $(OBJDIR_RELEASE_LINUX)/singletons.o $(OBJDIR_RELEASE_LINUX)/sound.o $(OBJDIR_RELEASE_LINUX)/space.o $(OBJDIR_RELEASE_LINUX)/stdafx.o $(OBJDIR_RELEASE_LINUX)/texpool.o $(OBJDIR_RELEASE_LINUX)/texture.o $(OBJDIR_RELEASE_LINUX)/ui.o $(OBJDIR_RELEASE_LINUX)/window.o $(OBJDIR_RELEASE_LINUX)/engine.o $(OBJDIR_RELEASE_LINUX)/export.o $(OBJDIR_RELEASE_LINUX)/file.o $(OBJDIR_RELEASE_LINUX)/fonts.o $(OBJDIR_RELEASE_LINUX)/graphics.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_demo.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_draw.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_impl_glfw.o
+OBJ_RELEASE_LINUX = $(OBJDIR_RELEASE_LINUX)/state.o $(OBJDIR_RELEASE_LINUX)/singletons.o $(OBJDIR_RELEASE_LINUX)/space.o $(OBJDIR_RELEASE_LINUX)/stdafx.o $(OBJDIR_RELEASE_LINUX)/texpool.o $(OBJDIR_RELEASE_LINUX)/texture.o $(OBJDIR_RELEASE_LINUX)/window.o $(OBJDIR_RELEASE_LINUX)/engine.o $(OBJDIR_RELEASE_LINUX)/export.o $(OBJDIR_RELEASE_LINUX)/file.o $(OBJDIR_RELEASE_LINUX)/fonts.o $(OBJDIR_RELEASE_LINUX)/graphics.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_demo.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_draw.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_impl_glfw.o
 
 all: debug_linux release_linux
 
@@ -66,9 +66,6 @@ $(OBJDIR_DEBUG_LINUX)/state.o: state.cpp
 $(OBJDIR_DEBUG_LINUX)/singletons.o: singletons.cpp
 	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c singletons.cpp -o $(OBJDIR_DEBUG_LINUX)/singletons.o
 
-$(OBJDIR_DEBUG_LINUX)/sound.o: sound.cpp
-	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c sound.cpp -o $(OBJDIR_DEBUG_LINUX)/sound.o
-
 $(OBJDIR_DEBUG_LINUX)/space.o: space.cpp
 	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c space.cpp -o $(OBJDIR_DEBUG_LINUX)/space.o
 
@@ -80,9 +77,6 @@ $(OBJDIR_DEBUG_LINUX)/texpool.o: texpool.cpp
 
 $(OBJDIR_DEBUG_LINUX)/texture.o: texture.cpp
 	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c texture.cpp -o $(OBJDIR_DEBUG_LINUX)/texture.o
-
-$(OBJDIR_DEBUG_LINUX)/ui.o: ui.cpp
-	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c ui.cpp -o $(OBJDIR_DEBUG_LINUX)/ui.o
 
 $(OBJDIR_DEBUG_LINUX)/window.o: window.cpp
 	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c window.cpp -o $(OBJDIR_DEBUG_LINUX)/window.o
@@ -141,9 +135,6 @@ $(OBJDIR_RELEASE_LINUX)/state.o: state.cpp
 $(OBJDIR_RELEASE_LINUX)/singletons.o: singletons.cpp
 	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c singletons.cpp -o $(OBJDIR_RELEASE_LINUX)/singletons.o
 
-$(OBJDIR_RELEASE_LINUX)/sound.o: sound.cpp
-	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c sound.cpp -o $(OBJDIR_RELEASE_LINUX)/sound.o
-
 $(OBJDIR_RELEASE_LINUX)/space.o: space.cpp
 	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c space.cpp -o $(OBJDIR_RELEASE_LINUX)/space.o
 
@@ -155,9 +146,6 @@ $(OBJDIR_RELEASE_LINUX)/texpool.o: texpool.cpp
 
 $(OBJDIR_RELEASE_LINUX)/texture.o: texture.cpp
 	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c texture.cpp -o $(OBJDIR_RELEASE_LINUX)/texture.o
-
-$(OBJDIR_RELEASE_LINUX)/ui.o: ui.cpp
-	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c ui.cpp -o $(OBJDIR_RELEASE_LINUX)/ui.o
 
 $(OBJDIR_RELEASE_LINUX)/window.o: window.cpp
 	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c window.cpp -o $(OBJDIR_RELEASE_LINUX)/window.o

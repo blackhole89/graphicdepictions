@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -706,8 +706,8 @@ void CSEngine::RunLogic()
                 }
             }
         }
-    } else if(keys[KEY_E]) {
-        keys[KEY_E]=false;
+    } else if(keys[KEY_X]) {
+        keys[KEY_X]=false;
         st.ExtrudeSelection();
         action=AC_GO;
         graphics.sx0=graphics.mx;
@@ -913,13 +913,13 @@ void CSEngine::RunLogic()
     for(int i=0;i<scripts.size();) {
         ImGui::PushID(i);
         i+=ScriptListEntry( &scripts[i], i, false );
-        ImGui::PopID();    
+        ImGui::PopID();
     }
 
     for(int i=0;i<st.scripts.size();) {
         ImGui::PushID(10000+i);
         i+=ScriptListEntry( &st.scripts[i], i, true );
-        ImGui::PopID();    
+        ImGui::PopID();
     }
     ImGui::Columns(1);
     ImGui::EndChild();

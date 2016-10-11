@@ -66,9 +66,6 @@ $(OBJDIR_DEBUG_WIN32)/state.o: state.cpp
 $(OBJDIR_DEBUG_WIN32)/singletons.o: singletons.cpp
 	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c singletons.cpp -o $(OBJDIR_DEBUG_WIN32)/singletons.o
 
-$(OBJDIR_DEBUG_WIN32)/sound.o: sound.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c sound.cpp -o $(OBJDIR_DEBUG_WIN32)/sound.o
-
 $(OBJDIR_DEBUG_WIN32)/space.o: space.cpp
 	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c space.cpp -o $(OBJDIR_DEBUG_WIN32)/space.o
 
@@ -80,9 +77,6 @@ $(OBJDIR_DEBUG_WIN32)/texpool.o: texpool.cpp
 
 $(OBJDIR_DEBUG_WIN32)/texture.o: texture.cpp
 	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c texture.cpp -o $(OBJDIR_DEBUG_WIN32)/texture.o
-
-$(OBJDIR_DEBUG_WIN32)/ui.o: ui.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c ui.cpp -o $(OBJDIR_DEBUG_WIN32)/ui.o
 
 $(OBJDIR_DEBUG_WIN32)/win32window.o: win32window.cpp
 	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c win32window.cpp -o $(OBJDIR_DEBUG_WIN32)/win32window.o
@@ -141,9 +135,6 @@ $(OBJDIR_RELEASE_WIN32)/state.o: state.cpp
 $(OBJDIR_RELEASE_WIN32)/singletons.o: singletons.cpp
 	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c singletons.cpp -o $(OBJDIR_RELEASE_WIN32)/singletons.o
 
-$(OBJDIR_RELEASE_WIN32)/sound.o: sound.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c sound.cpp -o $(OBJDIR_RELEASE_WIN32)/sound.o
-
 $(OBJDIR_RELEASE_WIN32)/space.o: space.cpp
 	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c space.cpp -o $(OBJDIR_RELEASE_WIN32)/space.o
 
@@ -155,9 +146,6 @@ $(OBJDIR_RELEASE_WIN32)/texpool.o: texpool.cpp
 
 $(OBJDIR_RELEASE_WIN32)/texture.o: texture.cpp
 	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c texture.cpp -o $(OBJDIR_RELEASE_WIN32)/texture.o
-
-$(OBJDIR_RELEASE_WIN32)/ui.o: ui.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c ui.cpp -o $(OBJDIR_RELEASE_WIN32)/ui.o
 
 $(OBJDIR_RELEASE_WIN32)/win32window.o: win32window.cpp
 	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c win32window.cpp -o $(OBJDIR_RELEASE_WIN32)/win32window.o
