@@ -40,9 +40,9 @@ OBJDIR_RELEASE_WIN32 = Release.win
 DEP_RELEASE_WIN32 = 
 OUT_RELEASE_WIN32 = Release.win/gdepictions.exe
 
-OBJ_DEBUG_WIN32 = $(OBJDIR_DEBUG_WIN32)/state.o $(OBJDIR_DEBUG_WIN32)/singletons.o $(OBJDIR_DEBUG_WIN32)/space.o $(OBJDIR_DEBUG_WIN32)/stdafx.o $(OBJDIR_DEBUG_WIN32)/texpool.o $(OBJDIR_DEBUG_WIN32)/texture.o $(OBJDIR_DEBUG_WIN32)/win32window.o $(OBJDIR_DEBUG_WIN32)/engine.o $(OBJDIR_DEBUG_WIN32)/export.o $(OBJDIR_DEBUG_WIN32)/file.o $(OBJDIR_DEBUG_WIN32)/fonts.o $(OBJDIR_DEBUG_WIN32)/graphics.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_demo.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_draw.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_impl_glfw.o
+OBJ_DEBUG_WIN32 = $(OBJDIR_DEBUG_WIN32)/state.o $(OBJDIR_DEBUG_WIN32)/singletons.o $(OBJDIR_DEBUG_WIN32)/space.o $(OBJDIR_DEBUG_WIN32)/stdafx.o $(OBJDIR_DEBUG_WIN32)/texpool.o $(OBJDIR_DEBUG_WIN32)/texture.o $(OBJDIR_DEBUG_WIN32)/win32window.o $(OBJDIR_DEBUG_WIN32)/engine.o $(OBJDIR_DEBUG_WIN32)/export.o $(OBJDIR_DEBUG_WIN32)/fonts.o $(OBJDIR_DEBUG_WIN32)/graphics.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_demo.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_draw.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_WIN32)/imgui/imgui_impl_glfw.o
 
-OBJ_RELEASE_WIN32 = $(OBJDIR_RELEASE_WIN32)/state.o $(OBJDIR_RELEASE_WIN32)/singletons.o $(OBJDIR_RELEASE_WIN32)/space.o $(OBJDIR_RELEASE_WIN32)/stdafx.o $(OBJDIR_RELEASE_WIN32)/texpool.o $(OBJDIR_RELEASE_WIN32)/texture.o $(OBJDIR_RELEASE_WIN32)/win32window.o $(OBJDIR_RELEASE_WIN32)/engine.o $(OBJDIR_RELEASE_WIN32)/export.o $(OBJDIR_RELEASE_WIN32)/file.o $(OBJDIR_RELEASE_WIN32)/fonts.o $(OBJDIR_RELEASE_WIN32)/graphics.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_demo.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_draw.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_impl_glfw.o
+OBJ_RELEASE_WIN32 = $(OBJDIR_RELEASE_WIN32)/state.o $(OBJDIR_RELEASE_WIN32)/singletons.o $(OBJDIR_RELEASE_WIN32)/space.o $(OBJDIR_RELEASE_WIN32)/stdafx.o $(OBJDIR_RELEASE_WIN32)/texpool.o $(OBJDIR_RELEASE_WIN32)/texture.o $(OBJDIR_RELEASE_WIN32)/win32window.o $(OBJDIR_RELEASE_WIN32)/engine.o $(OBJDIR_RELEASE_WIN32)/export.o $(OBJDIR_RELEASE_WIN32)/fonts.o $(OBJDIR_RELEASE_WIN32)/graphics.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_demo.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_draw.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_WIN32)/imgui/imgui_impl_glfw.o
 
 all: debug_win32 release_win32
 
@@ -86,9 +86,6 @@ $(OBJDIR_DEBUG_WIN32)/engine.o: engine.cpp
 
 $(OBJDIR_DEBUG_WIN32)/export.o: export.cpp
 	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c export.cpp -o $(OBJDIR_DEBUG_WIN32)/export.o
-
-$(OBJDIR_DEBUG_WIN32)/file.o: file.cpp
-	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c file.cpp -o $(OBJDIR_DEBUG_WIN32)/file.o
 
 $(OBJDIR_DEBUG_WIN32)/fonts.o: fonts.cpp
 	$(CXX) $(CFLAGS_DEBUG_WIN32) $(INC_DEBUG_WIN32) -c fonts.cpp -o $(OBJDIR_DEBUG_WIN32)/fonts.o
@@ -155,9 +152,6 @@ $(OBJDIR_RELEASE_WIN32)/engine.o: engine.cpp
 
 $(OBJDIR_RELEASE_WIN32)/export.o: export.cpp
 	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c export.cpp -o $(OBJDIR_RELEASE_WIN32)/export.o
-
-$(OBJDIR_RELEASE_WIN32)/file.o: file.cpp
-	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c file.cpp -o $(OBJDIR_RELEASE_WIN32)/file.o
 
 $(OBJDIR_RELEASE_WIN32)/fonts.o: fonts.cpp
 	$(CXX) $(CFLAGS_RELEASE_WIN32) $(INC_RELEASE_WIN32) -c fonts.cpp -o $(OBJDIR_RELEASE_WIN32)/fonts.o

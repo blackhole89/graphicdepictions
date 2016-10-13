@@ -40,9 +40,9 @@ OBJDIR_RELEASE_LINUX = Release
 DEP_RELEASE_LINUX = 
 OUT_RELEASE_LINUX = Release/gdepictions
 
-OBJ_DEBUG_LINUX = $(OBJDIR_DEBUG_LINUX)/state.o $(OBJDIR_DEBUG_LINUX)/singletons.o $(OBJDIR_DEBUG_LINUX)/space.o $(OBJDIR_DEBUG_LINUX)/stdafx.o $(OBJDIR_DEBUG_LINUX)/texpool.o $(OBJDIR_DEBUG_LINUX)/texture.o $(OBJDIR_DEBUG_LINUX)/window.o $(OBJDIR_DEBUG_LINUX)/engine.o $(OBJDIR_DEBUG_LINUX)/export.o $(OBJDIR_DEBUG_LINUX)/file.o $(OBJDIR_DEBUG_LINUX)/fonts.o $(OBJDIR_DEBUG_LINUX)/graphics.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_demo.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_draw.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_impl_glfw.o
+OBJ_DEBUG_LINUX = $(OBJDIR_DEBUG_LINUX)/state.o $(OBJDIR_DEBUG_LINUX)/singletons.o $(OBJDIR_DEBUG_LINUX)/space.o $(OBJDIR_DEBUG_LINUX)/stdafx.o $(OBJDIR_DEBUG_LINUX)/texpool.o $(OBJDIR_DEBUG_LINUX)/texture.o $(OBJDIR_DEBUG_LINUX)/window.o $(OBJDIR_DEBUG_LINUX)/engine.o $(OBJDIR_DEBUG_LINUX)/export.o $(OBJDIR_DEBUG_LINUX)/fonts.o $(OBJDIR_DEBUG_LINUX)/graphics.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_demo.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_draw.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_freetype.o $(OBJDIR_DEBUG_LINUX)/imgui/imgui_impl_glfw.o
 
-OBJ_RELEASE_LINUX = $(OBJDIR_RELEASE_LINUX)/state.o $(OBJDIR_RELEASE_LINUX)/singletons.o $(OBJDIR_RELEASE_LINUX)/space.o $(OBJDIR_RELEASE_LINUX)/stdafx.o $(OBJDIR_RELEASE_LINUX)/texpool.o $(OBJDIR_RELEASE_LINUX)/texture.o $(OBJDIR_RELEASE_LINUX)/window.o $(OBJDIR_RELEASE_LINUX)/engine.o $(OBJDIR_RELEASE_LINUX)/export.o $(OBJDIR_RELEASE_LINUX)/file.o $(OBJDIR_RELEASE_LINUX)/fonts.o $(OBJDIR_RELEASE_LINUX)/graphics.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_demo.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_draw.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_impl_glfw.o
+OBJ_RELEASE_LINUX = $(OBJDIR_RELEASE_LINUX)/state.o $(OBJDIR_RELEASE_LINUX)/singletons.o $(OBJDIR_RELEASE_LINUX)/space.o $(OBJDIR_RELEASE_LINUX)/stdafx.o $(OBJDIR_RELEASE_LINUX)/texpool.o $(OBJDIR_RELEASE_LINUX)/texture.o $(OBJDIR_RELEASE_LINUX)/window.o $(OBJDIR_RELEASE_LINUX)/engine.o $(OBJDIR_RELEASE_LINUX)/export.o $(OBJDIR_RELEASE_LINUX)/fonts.o $(OBJDIR_RELEASE_LINUX)/graphics.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_demo.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_draw.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_freetype.o $(OBJDIR_RELEASE_LINUX)/imgui/imgui_impl_glfw.o
 
 all: debug_linux release_linux
 
@@ -86,9 +86,6 @@ $(OBJDIR_DEBUG_LINUX)/engine.o: engine.cpp
 
 $(OBJDIR_DEBUG_LINUX)/export.o: export.cpp
 	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c export.cpp -o $(OBJDIR_DEBUG_LINUX)/export.o
-
-$(OBJDIR_DEBUG_LINUX)/file.o: file.cpp
-	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c file.cpp -o $(OBJDIR_DEBUG_LINUX)/file.o
 
 $(OBJDIR_DEBUG_LINUX)/fonts.o: fonts.cpp
 	$(CXX) $(CFLAGS_DEBUG_LINUX) $(INC_DEBUG_LINUX) -c fonts.cpp -o $(OBJDIR_DEBUG_LINUX)/fonts.o
@@ -155,9 +152,6 @@ $(OBJDIR_RELEASE_LINUX)/engine.o: engine.cpp
 
 $(OBJDIR_RELEASE_LINUX)/export.o: export.cpp
 	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c export.cpp -o $(OBJDIR_RELEASE_LINUX)/export.o
-
-$(OBJDIR_RELEASE_LINUX)/file.o: file.cpp
-	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c file.cpp -o $(OBJDIR_RELEASE_LINUX)/file.o
 
 $(OBJDIR_RELEASE_LINUX)/fonts.o: fonts.cpp
 	$(CXX) $(CFLAGS_RELEASE_LINUX) $(INC_RELEASE_LINUX) -c fonts.cpp -o $(OBJDIR_RELEASE_LINUX)/fonts.o

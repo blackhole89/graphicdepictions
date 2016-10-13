@@ -79,7 +79,6 @@ int pthread_delay_np(timespec *ts);
 #include "texpool.h"
 #include "graphics.h"
 #include "engine.h"
-#include "file.h"
 #include "fonts.h"
 #include "export.h"
 
