@@ -62,8 +62,6 @@ public:
     float nodecol[9][4];
 
     CSFont *nodefont;
-
-
 public:
 	void Init(CSEngine *ep);
 

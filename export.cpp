@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -96,25 +96,7 @@ void ExportTikz(CSState *st, char *filename)
             if( (*i)->a.count( s.e->graphics.nodelook[y*3+x] ) ) {
                 CSState::CSAttr *a = &(*i)->a[s.e->graphics.nodelook[y*3+x]];
                 char buf[32]={0};
-                switch(a->type) {
-                case CSState::CSAttr::TY_INT:
-                    sprintf(buf,"%d",a->data.d_int);
-                    break;
-                case CSState::CSAttr::TY_BITS:
-                    int b;
-                    for(b=0;b<=floor(0.01f+log(a->data.d_bits)/log(2.0f));++b) {
-                        buf[b]=(a->data.d_bits&(1<<b))?'1':'0';
-                    }
-                    buf[b]=0;
-                    if(!b) {
-                        buf[b]='0';
-                        buf[b+1]=0;
-                    }
-                    break;
-                case CSState::CSAttr::TY_FLOAT:
-                    sprintf(buf,"%.3f",a->data.d_float);
-                    break;
-                }
+                a->PrettyPrint(buf);
 
                 fprintf(fl,"\\draw (n%d) node[color=clr%d%d,nl%s] {$%s$};\n", nodes2id[*i], x,y, anchors[y][x], buf);
             }

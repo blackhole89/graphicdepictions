@@ -50,7 +50,7 @@ void CSGraphics::Init(CSEngine *ep)
 	#undef A4
 
 	nodefont=new CSFont;
-	nodefont->LoadFont("StrLit.ttf",9,0);
+	nodefont->LoadFont("SourceCodePro-Bold.ttf",12,0);
 
 	ImGui_ImplGlfw_Init(s.e->wnd, true);
 
@@ -193,6 +193,7 @@ void CSGraphics::DoDraw()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	/* grid */
 	glColor4fv(config.grid);
 	glBegin(GL_LINES);
         glVertex3f(-10,0,0);
@@ -216,6 +217,7 @@ void CSGraphics::DoDraw()
 
 	//glTranslatef((s.wnd->aspect/2.0)-0.5,0,0);
 
+    /* edges */
 	glDisable(GL_DEPTH_TEST);
     glLineWidth(3);
     glColor4fv(config.edge);
@@ -251,9 +253,27 @@ void CSGraphics::DoDraw()
 	glLineWidth(1);
 	glEnable(GL_DEPTH_TEST);
 
+	/* edge labels */
+	for(auto i = s.e->st.edges.begin(); i!=s.e->st.edges.end(); ++i) {
+        if( (*i)->a.count( "label" ) ) {
+            OrthoAtSpatial( ((*i)->n1->pos[0]+(*i)->n2->pos[0])/2.0f,
+                            ((*i)->n1->pos[1]+(*i)->n2->pos[1])/2.0f,
+                            ((*i)->n1->pos[2]+(*i)->n2->pos[2])/2.0f );
+
+            CSState::CSAttr *a = &(*i)->a["label"];
+            char buf[32]={0};
+            a->PrettyPrint(buf);
+
+            int n=strlen(buf);
+            static float el_outline[4] = {1.0f,1.0f,1.0f,1.0f};
+            nodefont->Render(16,buf,n,el_outline);
+            ReturnToSpace();
+        }
+	}
+
+	/* vertices */
 	for(auto i = s.e->st.nodes.begin(); i!=s.e->st.nodes.end(); ++i) {
         OrthoAtSpatial( (*i)->pos[0], (*i)->pos[1], (*i)->pos[2] );
-
 
         if( (*i)->selected ) {
             glColor4fv(config.n_select);
@@ -266,7 +286,6 @@ void CSGraphics::DoDraw()
             glEnd();
             glLineWidth(1);
         }
-
 
         glColor4fv(config.n_fill);
         glBegin(GL_QUADS);
@@ -290,36 +309,24 @@ void CSGraphics::DoDraw()
                 glColor4fv( nodecol[y*3+x] );
                 CSState::CSAttr *a = &(*i)->a[nodelook[y*3+x]];
                 char buf[32]={0};
-                switch(a->type) {
-                case CSState::CSAttr::TY_INT:
-                    sprintf(buf,"%d",a->data.d_int);
-                    break;
-                case CSState::CSAttr::TY_BITS:
-                    int b;
-                    for(b=0;b<=floor(0.01f+log(a->data.d_bits)/log(2.0f));++b) {
-                        buf[b]=(a->data.d_bits&(1<<b))?'1':'0';
-                    }
-                    buf[b]=0;
-                    if(!b) {
-                        buf[b]='0';
-                        buf[b+1]=0;
-                    }
-                    break;
-                case CSState::CSAttr::TY_FLOAT:
-                    sprintf(buf,"%.3f",a->data.d_float);
-                    break;
-                }
-
+                a->PrettyPrint(buf);
                 glTranslatef((x*15)-23,(y*13)-19,0);
                 int n=strlen(buf);
                 if(!x) glTranslatef(-7*n+15,0,0);
-                nodefont->Render(16,buf,n);
+
+                float white_border[4]={1.0f,1.0f,1.0f,1.0f};
+                // choose appropriate border colour based on YUV luminance threshold
+                if((0.2126*nodecol[y*3+x][0]+0.7152*nodecol[y*3+x][1]+0.0722*nodecol[y*3+x][2])<0.7)
+                    nodefont->Render(16,buf,n,white_border);
+                else nodefont->Render(16,buf,n);
+
                 if(!x) glTranslatef(7*n-15,0,0);
                 glTranslatef(23-(x*15),19-(y*13),0);
             }
         }
 
-        ReturnToSpace();    }
+        ReturnToSpace();
+    }
 
 
     /* draw selection frame */

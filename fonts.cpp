@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -54,17 +54,19 @@ void CSFont::LoadFont(char *fn,int s,int aspace) {
 	asp=aspace;
 }
 
-void CSFont::Render(int tsx,const char* text,int num)
+void CSFont::Render(int tsx,const char* text,int num,float *outline_color)
 {
 	int len=strlen(text);
 	int error;
 	int x=0,y=1 << (int)ceil((log((double)(2*size))/log(2.0f)));;
 	GLuint tex;
-	char *buf=new char[y*tsx*4];
+	unsigned char *buf=new unsigned char[y*tsx*4];
+	unsigned char *sbuf=new unsigned char[y*tsx*4];
 
 	int nrow=0;
 
     glPushMatrix();
+    glTranslatef(0,10-size,0);
 	glPushMatrix(); // this instance will move with newlines
 
 	for (int n=0;n<len&&n<num;++n) {
@@ -88,12 +90,14 @@ void CSFont::Render(int tsx,const char* text,int num)
 			/* now, draw to our target surface */
 			//memcpy(buf+(y+i-f->glyph->bitmap_top)*tsx*4+x*4,f->glyph->bitmap.buffer+f->glyph->bitmap.width
 			memset(buf,0,y*tsx*4);
+			memset(sbuf,0,y*tsx*4);
 			for(int i=0;i<f->glyph->bitmap.rows;++i) {
 				for(int j=0;j<f->glyph->bitmap.width;++j) {
 					int base;
 					int dy;
 					base=(j+x+f->glyph->bitmap_left)*4+(dy=(i+size-f->glyph->bitmap_top))*4*tsx;
-					buf[base+0]=(dy<(0.7*size/3)||dy>(2.5*size/3))?0xB0:0xFF;
+
+					buf[base+0]=0xFF;//((dy<(0.7*size/3)||dy>(2.5*size/3))?0xB0:0xFF);
 					buf[base+1]=buf[base+0];
 					buf[base+2]=0xFF;
 					buf[base+3]=f->glyph->bitmap.buffer[j+i*f->glyph->bitmap.width];
@@ -108,23 +112,57 @@ void CSFont::Render(int tsx,const char* text,int num)
 
 			glTexImage2D ( GL_TEXTURE_2D, 0,GL_RGBA, tsx, y, 0,GL_RGBA, GL_UNSIGNED_BYTE, buf);
 
+			for(int i=0;i<y;++i) {
+				for(int j=0;j<tsx;++j) {
+					/* generate 2-pixel outline */
+					int max3x3 = 0;
+					for(int a=-1;a<2;++a) for(int b=-1;b<2;++b) {
+                        int aj= j+a; int ib=i+b;
+
+                        if((aj<0) || (aj>=tsx)) continue;
+                        if((ib<0) || (ib>=y)) continue;
+
+                        if(  ((unsigned)buf[aj*4 + ib*4*tsx+3])>max3x3)
+                            max3x3 = (unsigned)buf[aj*4 + ib*4*tsx+3];
+					}
+					int base = j*4 + i*4*tsx;
+
+					sbuf[base+0]=0xFF;
+					sbuf[base+1]=0xFF;
+					sbuf[base+2]=0xFF;
+					sbuf[base+3]=max3x3;
+				}
+			}
+
+			glGenTextures(1,&e.shadow);
+
+			glBindTexture(GL_TEXTURE_2D, e.shadow);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+
+			glTexImage2D ( GL_TEXTURE_2D, 0,GL_RGBA, tsx, y, 0,GL_RGBA, GL_UNSIGNED_BYTE, sbuf);
+
 			gcache[glyph_index]=e;
 		}
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, gcache[glyph_index].tex);
-		glPushAttrib(GL_CURRENT_BIT);
-		glTranslatef(1,1,0);
-		glColor3f(0,0,0);
+
+		//glPushAttrib(GL_CURRENT_BIT);
+
+		float clr[4];
+        glGetFloatv(GL_CURRENT_COLOR,clr);
+        glColor4fv(outline_color);
+		glBindTexture(GL_TEXTURE_2D, gcache[glyph_index].shadow);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0,0); glVertex2f(0,0);
 			glTexCoord2f(0,1); glVertex2f(0,y);
 			glTexCoord2f(1,1); glVertex2f(tsx,y);
 			glTexCoord2f(1,0); glVertex2f(tsx,0);
 		glEnd();
-		glTranslatef(-1,-1,0);
-		//glColor3f(1,1,1);
-		glPopAttrib();
+		//glTranslatef(-1,-1,0);
+		glColor4fv(clr);
+		//glPopAttrib();
+		glBindTexture(GL_TEXTURE_2D, gcache[glyph_index].tex);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0,0); glVertex2f(0,0);
 			glTexCoord2f(0,1); glVertex2f(0,y);
@@ -140,6 +178,7 @@ void CSFont::Render(int tsx,const char* text,int num)
 	glPopMatrix();
 
 	delete buf;
+	delete sbuf;
 }
 
 int CSFont::RenderSingle(char *buf,int shift,int posx,int posy,char **text)

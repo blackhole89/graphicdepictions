@@ -108,3 +108,16 @@ Known issues
 * Drawing lots of node labels can be slow on some platforms. Generally, the "separate texture for each glyph" approach my font implementation (`fonts.cpp`) uses seems to be much slower than imgui's font atlas + texture coordinates one; I will eventually switch over to it.
 * In the Windows binary build, TikZ export fails to correctly compute node label colours. This is a complete and utter mystery to me at the moment.
 
+Changelog
+---------
+
+### 0.2-trunk
+
+* Added preliminary support for edge data. At the moment, only the "label" field is displayed as a part of node look.
+* Switched the node label font to a more legible one, and replaced shadows with outlines.
+* Fixed "Execute on selected..." doing nothing.
+* Added rudimentary editor for JS node properties in context menu.
+
+### 0.1
+
+* Initial release.

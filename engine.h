@@ -54,6 +54,11 @@ public:
         CSAttr(float,float,float);
         CSAttr(int,bool bits=false);
         CSAttr();
+
+        void PrettyPrint(char *buf);
+
+        void ToString(char *buf);
+        static CSAttr FromString(char *buf);
     };
     typedef std::map<std::string, CSAttr> attrs;
 
@@ -147,7 +152,7 @@ public:
 
     v8::HandleScope v8hs;
     v8::Persistent<v8::Context> v8ctx;
-    v8::Persistent<v8::ObjectTemplate> node_templ, set_templ;
+    v8::Persistent<v8::ObjectTemplate> node_templ, set_templ, edge_templ, edge_set_templ;
 
     std::vector<CSScript > scripts;
     char err_buf[4096];

@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -27,8 +27,10 @@
 
 struct glyphcacheent {
 	int advx;
-	GLuint tex;
+	GLuint tex, shadow;
 };
+
+static float default_outline_clr[4]={0.0f,0.0f,0.0f,1.0f};
 
 class CSFont {
 public:
@@ -40,7 +42,7 @@ public:
 	std::map<FT_UInt,glyphcacheent> gcache;
 
 	void LoadFont(char *fn,int s,int aspace);
-	void Render(int tsx,const char* text,int num);
+	void Render(int tsx,const char* text,int num, float *outline_color=default_outline_clr);
 	int RenderSingle(char *buf,int shift,int posx,int posy,char **text);
 };
 

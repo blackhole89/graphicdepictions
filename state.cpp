@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -47,6 +47,66 @@ CSState::CSAttr::CSAttr(int i, bool bits)
 
 CSState::CSAttr::CSAttr()
 {}
+
+void CSState::CSAttr::PrettyPrint(char *buf)
+{
+    switch(type) {
+    case TY_INT:
+        sprintf(buf,"%d",data.d_int);
+        break;
+    case TY_BITS:
+        int b;
+        for(b=0;b<=floor(0.01f+log(data.d_bits)/log(2.0f));++b) {
+            buf[b]=(data.d_bits&(1<<b))?'1':'0';
+        }
+        buf[b]=0;
+        if(!b) {
+            buf[b]='0';
+            buf[b+1]=0;
+        }
+        break;
+    case TY_FLOAT:
+        sprintf(buf,"%.3f",data.d_float);
+        break;
+    }
+}
+
+void CSState::CSAttr::ToString(char *buf)
+{
+    switch(type) {
+    case TY_INT:
+        sprintf(buf,"i%d",data.d_int);
+        break;
+    case TY_BITS:
+        sprintf(buf,"b%d",data.d_int);
+        break;
+    case TY_FLOAT:
+        sprintf(buf,"f%.8f",data.d_float);
+        break;
+    }
+}
+
+CSState::CSAttr CSState::CSAttr::FromString(char *buf)
+{
+    int d_i; float d_f;
+    switch(buf[0]) {
+    case 'i':
+        sscanf(buf+1,"%d ",&d_i);
+        return CSAttr(d_i,false);
+        break;
+    case 'b':
+        sscanf(buf+1,"%d ",&d_i);
+        return CSAttr(d_i,true);
+        break;
+    case 'f':
+        sscanf(buf+1,"%f ",&d_f);
+        return CSAttr(d_f);
+        break;
+    default:
+        return CSAttr();
+        break;
+    }
+}
 
 
 CSState::CSNode *CSState::AddNode(float x, float y, float z)
@@ -126,6 +186,8 @@ CSState::CSEdge *CSState::AddEdge(CSState::CSNode *n1, CSState::CSNode *n2)
     n2->adje.insert(e);
     n1->adj.insert(n2);
     n2->adj.insert(n1);
+
+    return e;
 }
 
 /* manual modelling */
@@ -471,8 +533,18 @@ void CSState::Load()
     sprintf(titlebuf,"%s - graphic depictions",last_filename);
     s.e->wnd->SetWindowTitle(titlebuf);
 
+    int version=0;
     int dims;
-    fscanf(fl," %dD ",&dims);
+    char tagline[32];
+
+    fscanf(fl," %s ",tagline);
+    if(strcmp(tagline,"version")) {
+        sscanf(tagline," %dD ",&dims);
+    } else {
+        fscanf(fl," %d ",&version);
+        fscanf(fl," %dD ",&dims);
+    }
+
     if(dims==3) s.e->use_3d=true;
     else s.e->use_3d=false;
 
@@ -491,24 +563,9 @@ void CSState::Load()
         if(sel) ++nselected;
 
         for(int j=0;j<nattrs;++j) {
-            char buf[128],type;
-            int d_i; float d_f;
-            fscanf(fl," \"%[^\"]\"=%c",buf,&type);
-            switch(type) {
-            case 'i':
-                fscanf(fl,"%d ",&d_i);
-                n->a[buf]=CSAttr(d_i,false);
-                break;
-            case 'b':
-                fscanf(fl,"%d ",&d_i);
-                n->a[buf]=CSAttr(d_i,true);
-                break;
-            case 'f':
-                fscanf(fl,"%f ",&d_f);
-                n->a[buf]=CSAttr(d_f);
-                break;
-            default:;
-            }
+            char buf[128],value[128];
+            fscanf(fl," \"%[^\"]\"=%[^ \n] ",buf,value);
+            n->a[buf]=CSAttr::FromString(value);
         }
     }
 
@@ -517,7 +574,18 @@ void CSState::Load()
     for(int i=0;i<nedges;++i) {
         int n1,n2;
         fscanf(fl," %d %d ",&n1,&n2);
-        AddEdge(id2nodes[n1],id2nodes[n2]);
+        CSEdge *e=AddEdge(id2nodes[n1],id2nodes[n2]);
+
+        if(version>=1) {
+            /* load edge attributes, too */
+            int nattrs;
+            fscanf(fl," %d ",&nattrs);
+            for(int j=0;j<nattrs;++j) {
+                char buf[128],value[128];
+                fscanf(fl," \"%[^\"]\"=%[^ \n] ",buf,value);
+                e->a[buf]=CSAttr::FromString(value);
+            }
+        }
     }
 
     int nselgroups=0;
@@ -575,6 +643,8 @@ void CSState::Save()
     FILE *fl = fopen(last_filename,"w");
     if(!fl) return;
 
+    fprintf(fl,"version 1\n");
+
     fprintf(fl,"%s\n",s.e->use_3d?"3D":"2D");
 
     fprintf(fl,"%d\n",nodes.size());
@@ -586,23 +656,23 @@ void CSState::Save()
         fprintf(fl,"%d %.8f %.8f %.8f %d\n",(*i)->selected,(*i)->pos[0],(*i)->pos[1],(*i)->pos[2],(*i)->a.size());
         for(auto j=(*i)->a.begin(); j!=(*i)->a.end(); ++j) {
             fprintf(fl,"\"%s\"=",j->first.c_str());
-            switch(j->second.type) {
-            case CSAttr::TY_INT:
-                fprintf(fl,"i%d\n",j->second.data.d_int);
-                break;
-            case CSAttr::TY_BITS:
-                fprintf(fl,"b%d\n",j->second.data.d_int);
-                break;
-            case CSAttr::TY_FLOAT:
-                fprintf(fl,"f%.8f\n",j->second.data.d_float);
-                break;
-            }
+            char buf[32];
+            j->second.ToString(buf);
+            fprintf(fl,"%s\n",buf);
         }
     }
 
     fprintf(fl,"%d\n",edges.size());
     for(auto i=edges.begin(); i!=edges.end(); ++i) {
-        fprintf(fl,"%d %d\n",nodes2id[(*i)->n1], nodes2id[(*i)->n2]);
+        fprintf(fl,"%d %d ",nodes2id[(*i)->n1], nodes2id[(*i)->n2]);
+        fprintf(fl,"%d",(*i)->a.size());
+        for(auto j=(*i)->a.begin(); j!=(*i)->a.end(); ++j) {
+            fprintf(fl," \"%s\"=",j->first.c_str());
+            char buf[32];
+            j->second.ToString(buf);
+            fprintf(fl,"%s",buf);
+        }
+        fprintf(fl,"\n");
     }
 
     fprintf(fl,"%d\n",NSELGROUPS);
