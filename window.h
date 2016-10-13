@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -23,76 +23,45 @@
 #include <GL/glx.h>
 #include "stdafx.h"
 
-#ifdef WIN32
-#define KEY_X 'X'
-#define KEY_Y 'Y'
-#define KEY_Z 'Z'
-#define KEY_E 'E'
-#define KEY_Q 'Q'
-#define KEY_U 'U'
-#define KEY_I 'I'
-#define KEY_O 'O'
-#define KEY_A 'A'
-#define KEY_S 'S'
-#define KEY_D 'D'
-#define KEY_F 'F'
-#define KEY_G 'G'
-#define KEY_H 'H'
-#define KEY_J 'J'
-#define KEY_K 'K'
-#define KEY_B 'B'
-#define KEY_N 'N'
-#define KEY_M 'M'
-#define KEY_C 'C'
-#define KEY_V 'V'
-#define KEY_Z 'Z'
-#define KEY_CTRL VK_CTRL
-#define KEY_SHIFT VK_SHIFT
-#define KEY_ESC VK_ESCAPE
-#define KEY_TAB VK_TAB
-#define KEY_BACKSPACE VK_BACKSPACE
-#define KEY_DELETE VK_DELETE
-#define KEY_ENTER VK_RETURN
-#define KEY_HOME VK_HOME
-#define KEY_END VK_END
+#define KEY_LEFT (XK_Left&0xff)
+#define KEY_UP (XK_Up&0xff)
+#define KEY_RIGHT (XK_Right&0xff)
+#define KEY_DOWN (XK_Down&0xff)
+
+#define KEY_SHIFT (XK_Shift_L&0xff)
+#define KEY_CTRL (XK_Control_L&0xff)
+#define KEY_DELETE (XK_Delete&0xff)
+#define KEY_ENTER (XK_Return&0xff)
+#define KEY_BACKSPACE (XK_BackSpace&0xff)
+#define KEY_HOME (XK_Home&0xff)
+#define KEY_END (XK_End&0xff)
+#define KEY_ESC (XK_Escape&0xff)
+#define KEY_TAB (XK_Tab&0xff)
+
+#define KEY_X 'x'
+#define KEY_Y 'y'
+#define KEY_Z 'z'
+#define KEY_E 'e'
+#define KEY_Q 'q'
+#define KEY_U 'u'
+#define KEY_I 'i'
+#define KEY_O 'o'
+#define KEY_A 'a'
+#define KEY_S 's'
+#define KEY_D 'd'
+#define KEY_F 'f'
+#define KEY_G 'g'
+#define KEY_H 'h'
+#define KEY_J 'j'
+#define KEY_K 'k'
+#define KEY_B 'b'
+#define KEY_N 'n'
+#define KEY_M 'm'
+#define KEY_C 'c'
+#define KEY_V 'v'
+#define KEY_Z 'z'
+
 static int KEY_GROUP_ACCEL[10]={'1','2','3','4','5','6','7','8','9','0'};
-#else
-#define KEY_UP 111
-#define KEY_LEFT 113
-#define KEY_RIGHT 114
-#define KEY_DOWN 116
-#define KEY_C 54
-#define KEY_V 55
-#define KEY_X 53
-#define KEY_Y 52
-#define KEY_Q 24
-#define KEY_E 26
-#define KEY_U 30
-#define KEY_I 31
-#define KEY_O 32
-#define KEY_A 38
-#define KEY_S 39
-#define KEY_D 40
-#define KEY_F 41
-#define KEY_G 42
-#define KEY_H 43
-#define KEY_J 44
-#define KEY_K 45
-#define KEY_B 56
-#define KEY_N 57
-#define KEY_M 58
-#define KEY_Z 29
-#define KEY_CTRL 37
-#define KEY_SHIFT 50
-#define KEY_ESC 9
-#define KEY_TAB 23
-#define KEY_BACKSPACE 22
-#define KEY_DELETE 119
-#define KEY_ENTER 36
-#define KEY_HOME 110
-#define KEY_END 115
-static int KEY_GROUP_ACCEL[10]={10,11,12,13,14,15,16,17,18,19};
-#endif
 
 #define WHEIGHT 480
 #define WWIDTH 640

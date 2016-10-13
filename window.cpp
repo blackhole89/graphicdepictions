@@ -208,23 +208,30 @@ int CSMainWindow::CheckMessages()
                 char buf[16]; KeySym k;
                 XLookupString(&event.xkey,buf,16,&k,NULL);
 
-
                 if(k<0xE000) ImGui::GetIO().AddInputCharacter(k);
 
+                if(k>='A' && k<='Z') k+=('a'-'A'); // normalise capitals to decollide
+                if(k>=0xFE00 && k<0xFF00) break;   // none of these are of use
 
                 if(!ImGui::GetIO().WantCaptureKeyboard) {
-                    s.e->keys[event.xkey.keycode&0xFF]=true;
+                    s.e->keys[k&0xFF]=true;
                 }
 
-                ImGui::GetIO().KeysDown[event.xkey.keycode&0xFF]=true;
+                ImGui::GetIO().KeysDown[k&0xFF]=true;
                 //fprintf( stderr, "KeyPress event\n" );
             }
             break;
 
             case KeyRelease:
             {
-                s.e->keys[event.xkey.keycode&0xFF]=false;
-                ImGui::GetIO().KeysDown[event.xkey.keycode&0xFF]=false;
+                char buf[16]; KeySym k;
+                XLookupString(&event.xkey,buf,16,&k,NULL);
+
+                if(k>='A' && k<='Z') k+=('a'-'A'); // normalise capitals to decollide
+                if(k>=0xFE00 && k<0xFF00) break;   // none of these are of use
+
+                s.e->keys[k&0xFF]=false;
+                ImGui::GetIO().KeysDown[k&0xFF]=false;
                 //fprintf( stderr, "KeyRelease event\n" );
             }
             break;
