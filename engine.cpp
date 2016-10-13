@@ -28,6 +28,14 @@
 
 using namespace v8;
 
+Handle<Value> ValueOfCallback(const Arguments &args)
+{
+    Handle<External> he = Handle<External>::Cast(args.Holder()->GetInternalField(0));
+    long long ptr = (long long)he->Value();
+
+    return Integer::New(ptr);
+}
+
 Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
 {
     Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
@@ -43,6 +51,8 @@ Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
         ret->Set(String::New("z"), Number::New(n->pos[2]));
 
         return scope.Close(ret);
+    } else if(dfield=="valueOf") {
+        return FunctionTemplate::New(ValueOfCallback)->GetFunction();
     } else if(dfield=="selected") {
         return Boolean::New(n->selected);
     } else if(n->a.count(dfield)) {
@@ -98,6 +108,8 @@ Handle<Value> EdgeGet(Local<String> name, const AccessorInfo& info)
 
     if(dfield=="forEach") {
         return FunctionTemplate::New(EdgeForeachCallback)->GetFunction();
+    } else if(dfield=="valueOf") {
+        return FunctionTemplate::New(ValueOfCallback)->GetFunction();
     } else if(dfield=="n1") {
         auto nwrapped = s.e->node_templ->NewInstance();
         nwrapped->SetInternalField(0, External::New(e->n1));
@@ -999,7 +1011,7 @@ void CSEngine::RunLogic()
         /* node data display */
         if( CSState::CSNode* v = GetClosestVertex(graphics.sx0, graphics.sy0, 20.0f) ) {
             ImGui::SetNextWindowContentWidth(200.0f);
-            if(ImGui::BeginMenu("Edit vertex data")) {
+            if(ImGui::BeginMenu("Vertex data")) {
                 ImGui::Columns(2);
                 ImGui::SetColumnOffset(1,50.0f);
                 ImGui::Text("pos.x"); ImGui::NextColumn(); ImGui::Text("%.2f",v->pos[0]); ImGui::NextColumn();

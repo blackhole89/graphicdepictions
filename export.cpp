@@ -45,6 +45,7 @@ void ExportTikz(CSState *st, char *filename)
     fprintf(fl,"\\tikzstyle{nl} = [font=\\tiny]\n");
     fprintf(fl,"\\definecolor{clredge}{rgb}{%.2f,%.2f,%.2f}\n",s.e->graphics.config.edge[0],s.e->graphics.config.edge[1],s.e->graphics.config.edge[2]);
     fprintf(fl,"\\tikzstyle{e} = [draw=clredge]\n");
+    fprintf(fl,"\\tikzstyle{el} = [color=clredge,font=\\tiny]\n");
 
     /* label styles */
     for(int y=0;y<3;++y) for(int x=0;x<3;++x) {
@@ -84,7 +85,16 @@ void ExportTikz(CSState *st, char *filename)
 
     /* edges */
     for(auto i=st->edges.begin(); i!=st->edges.end(); ++i) {
-        fprintf(fl,"\\draw[e] (n%d) -- (n%d);\n",nodes2id[(*i)->n1],nodes2id[(*i)->n2]);
+        if( (*i)->a.count( "label" ) ) {
+            CSState::CSAttr *a = &(*i)->a["label"];
+
+            char buf[32]={0};
+            a->PrettyPrint(buf);
+
+            fprintf(fl,"\\draw[e] (n%d) -- node[auto,midway,el] {$%s$} (n%d);\n",nodes2id[(*i)->n1],buf,nodes2id[(*i)->n2]);
+        } else {
+            fprintf(fl,"\\draw[e] (n%d) -- (n%d);\n",nodes2id[(*i)->n1],nodes2id[(*i)->n2]);
+        }
     }
 
     /* node dots and labels */

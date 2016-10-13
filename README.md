@@ -13,10 +13,10 @@ You are looking at an early release, and a lot of features and polish are still 
 How to install
 --------------
 
-The easiest way to use this program is to pull one of the binary builds:
+The easiest way to use this program is to pull one of the binary builds (version 0.2 of 2016-10-13):
 
-* [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.1.tar.gz)
-* [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.1-win64.zip)
+* [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.2.tar.gz)
+* [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.2-win64.zip)
 
 Once you have unpacked the relevant package, switch into the directory contained and run the binary (`./gdepictions` in a Linux shell, or `gdepictions.exe` on Windows).
 
@@ -65,6 +65,21 @@ gamma(N).forEach(function (M) {
 });
 ```
 This script adds all nodes that are adjacent to `N` to the current selection.
+* If `N` is a node object, then `delta(N)` is an object that denotes the node's boundary, that is, the set of all edges incident to it. This set can be iterated over as follows:
+```javascript
+delta(N).forEach(function (E) {
+    // Get other end.
+    // + forces comparison of underlying nodes rather than references.
+    var M;
+    if(E.n1 ==+ N)
+        M = E.n2;
+    else
+        M = E.n1;
+
+    // label edges incident to N with difference in v going out of N 
+    E.label = M.v - N.v;
+});
+```
 * The set of all nodes is always made available in global scope as `nodes()`. So the action of a script "on nodes" can be emulated with a script "on graphs" as follows:
 ```javascript
 nodes().forEach(function (N) {
@@ -73,11 +88,13 @@ nodes().forEach(function (N) {
     }
 });
 ```
+Likewise, the set of all edges is made available as `edges()`.
 * New nodes and edges can be added by scripts using `addNode` and `addEdge`. When adding nodes, the position in 2D or 3D space needs to be specified. For instance, the following script creates a new dangling vertex that is connected to each vertex in the selection next to the respective vertex:
 ```javascript
 M = addNode(N.pos.x+0.1, N.pos.y); // or addNode(N.pos.x+0.1, N.pos.y, N.pos.z)
-addEdge(M,N);
+E = addEdge(M,N);
 ```
+
 By default, scripts are saved with the graph you are editing. (File > Save) You can instead make a script global by right-clicking it in the script list and unchecking `Stored with graph`. You can also quickly enter scripts that will not be saved by right-clicking the graph view and selecting `Execute on selection...`.
 
 The subwindow `Node Apperance` contains a 3x3 matrix of input boxes which can be used to display the current values of vertex attributes next to the vertex in the graph view. For instance, if the previously-mentioned script `N.v=3;` was run on all nodes and `v` is entered into the second input box in the top line of the window, then a `3` will be rendered above every node.
@@ -107,16 +124,18 @@ Known issues
 
 * Drawing lots of node labels can be slow on some platforms. Generally, the "separate texture for each glyph" approach my font implementation (`fonts.cpp`) uses seems to be much slower than imgui's font atlas + texture coordinates one; I will eventually switch over to it.
 * In the Windows binary build, TikZ export fails to correctly compute node label colours. This is a complete and utter mystery to me at the moment.
+* While the program can be built under OS X, there appears to be a discrepancy in keycodes which prevents it from being useful.
 
 Changelog
 ---------
 
-### 0.2-trunk
+### 0.2
 
-* Added preliminary support for edge data. At the moment, only the "label" field is displayed as a part of node look.
+* Added basic support for edge data. At the moment, the "edge look" is hardcoded to display the field named "label" only.
 * Switched the node label font to a more legible one, and replaced shadows with outlines.
 * Fixed "Execute on selected..." doing nothing.
 * Added rudimentary editor for JS node properties in context menu.
+* Bump file format version.
 
 ### 0.1
 
