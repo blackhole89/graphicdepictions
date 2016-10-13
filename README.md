@@ -129,6 +129,10 @@ Known issues
 Changelog
 ---------
 
+### 0.2.1
+
+* Made X11 keyboard support more portable.
+
 ### 0.2
 
 * Added basic support for edge data. At the moment, the "edge look" is hardcoded to display the field named "label" only.

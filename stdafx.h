@@ -1,6 +1,6 @@
  /*
-  * graphic depictions, a visual workbench for graphs 
-  * 
+  * graphic depictions, a visual workbench for graphs
+  *
   * Copyright (C) 2016 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 #define ENVSTRING "linux x86_64"
 #endif
 
-#define VERSION "0.2"
+#define VERSION "0.2.1"
 #define VERSTRING VERSION" ("ENVSTRING")"
 
 // no idea where these even come from
