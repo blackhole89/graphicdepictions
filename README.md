@@ -13,7 +13,7 @@ You are looking at an early release, and a lot of features and polish are still 
 How to install
 --------------
 
-The easiest way to use this program is to pull one of the binary builds (version 0.2 of 2016-10-13):
+The easiest way to use this program is to pull one of the binary builds (version 0.2.1 of 2016-10-13):
 
 * [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.2.tar.gz)
 * [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.2-win64.zip)
