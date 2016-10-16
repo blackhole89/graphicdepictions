@@ -68,6 +68,9 @@ void CSState::CSAttr::PrettyPrint(char *buf)
     case TY_FLOAT:
         sprintf(buf,"%.3f",data.d_float);
         break;
+    case TY_FLOAT3:
+        sprintf(buf,"[%.2f,%.2f,%.2f]",data.d_float3[0],data.d_float3[1],data.d_float3[2]);
+        break;
     }
 }
 
@@ -83,12 +86,15 @@ void CSState::CSAttr::ToString(char *buf)
     case TY_FLOAT:
         sprintf(buf,"f%.8f",data.d_float);
         break;
+    case TY_FLOAT3:
+        sprintf(buf,"F[%.8f,%.8f,%.8f]",data.d_float3[0],data.d_float3[1],data.d_float3[2]);
+        break;
     }
 }
 
 CSState::CSAttr CSState::CSAttr::FromString(char *buf)
 {
-    int d_i; float d_f;
+    int d_i; float d_f, d_f2, d_f3;
     switch(buf[0]) {
     case 'i':
         sscanf(buf+1,"%d ",&d_i);
@@ -101,6 +107,10 @@ CSState::CSAttr CSState::CSAttr::FromString(char *buf)
     case 'f':
         sscanf(buf+1,"%f ",&d_f);
         return CSAttr(d_f);
+        break;
+    case 'F':
+        sscanf(buf+1,"[%f,%f,%f] ",&d_f, &d_f2, &d_f3);
+        return CSAttr(d_f,d_f2,d_f3);
         break;
     default:
         return CSAttr();
@@ -656,7 +666,7 @@ void CSState::Save()
         fprintf(fl,"%d %.8f %.8f %.8f %d\n",(*i)->selected,(*i)->pos[0],(*i)->pos[1],(*i)->pos[2],(*i)->a.size());
         for(auto j=(*i)->a.begin(); j!=(*i)->a.end(); ++j) {
             fprintf(fl,"\"%s\"=",j->first.c_str());
-            char buf[32];
+            char buf[64];
             j->second.ToString(buf);
             fprintf(fl,"%s\n",buf);
         }
@@ -668,7 +678,7 @@ void CSState::Save()
         fprintf(fl,"%d",(*i)->a.size());
         for(auto j=(*i)->a.begin(); j!=(*i)->a.end(); ++j) {
             fprintf(fl," \"%s\"=",j->first.c_str());
-            char buf[32];
+            char buf[64];
             j->second.ToString(buf);
             fprintf(fl,"%s",buf);
         }

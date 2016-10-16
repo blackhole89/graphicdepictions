@@ -288,6 +288,9 @@ void CSGraphics::DoDraw()
         }
 
         glColor4fv(config.n_fill);
+        if( (*i)->a.count("clr") ) {
+            glColor3fv((*i)->a["clr"].data.d_float3);
+        }
         glBegin(GL_QUADS);
             glVertex2f(-5,-5);
             glVertex2f(+5,-5);

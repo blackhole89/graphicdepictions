@@ -132,6 +132,10 @@ Known issues
 Changelog
 ---------
 
+### 0.3-trunk
+
+* Added support for manipulating the colour of nodes (N.setColour(float,float,float)) from scripts.
+
 ### 0.2.1
 
 * Made X11 keyboard support more portable.

@@ -36,6 +36,20 @@ Handle<Value> ValueOfCallback(const Arguments &args)
     return Integer::New(ptr);
 }
 
+Handle<Value> SetColourCallback(const Arguments &args)
+{
+    if (args.Length()<3) return v8::Undefined();
+
+    if(!args[0]->IsNumber() || !args[1]->IsNumber() || !args[2]->IsNumber()) return v8::Undefined();
+
+    Handle<External> hn = Handle<External>::Cast(args.Holder()->GetInternalField(0));
+    CSState::CSNode *n = (CSState::CSNode*)hn->Value();
+
+    n->a["clr"] = CSState::CSAttr(args[0]->NumberValue(), args[1]->NumberValue(), args[2]->NumberValue());
+
+    return v8::Undefined();
+}
+
 Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
 {
     Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
@@ -51,6 +65,8 @@ Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
         ret->Set(String::New("z"), Number::New(n->pos[2]));
 
         return scope.Close(ret);
+    } else if(dfield=="setColor" || dfield=="setColour") {
+        return FunctionTemplate::New(SetColourCallback)->GetFunction();
     } else if(dfield=="valueOf") {
         return FunctionTemplate::New(ValueOfCallback)->GetFunction();
     } else if(dfield=="selected") {
@@ -63,7 +79,11 @@ Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
         case CSState::CSAttr::TY_FLOAT:
             return Number::New(a->data.d_float);
         case CSState::CSAttr::TY_FLOAT3:
-            Handle<Value> r = Array::New(3); //TODO
+            // todo: this should return a native object so something like N.clr[0]=0.1 works
+            Handle<Array> r = Array::New(3);
+            r->Set(0, Number::New(a->data.d_float3[0]));
+            r->Set(1, Number::New(a->data.d_float3[1]));
+            r->Set(2, Number::New(a->data.d_float3[2]));
             return r;
         }
     }
@@ -91,7 +111,12 @@ Handle<Value> NodeSet(Local<String> name, Local<Value> value, const AccessorInfo
             n->a.erase(dfield);
         else if( value->IsInt32() )
             n->a[dfield]=CSState::CSAttr(value->Int32Value());
-        else n->a[dfield]=CSState::CSAttr((float)value->NumberValue());
+        else if( value->IsNumber() )
+            n->a[dfield]=CSState::CSAttr((float)value->NumberValue());
+        else if( value->IsArray() ) {
+            if( value->ToObject()->Get(String::New("length"))->Uint32Value() != 3) return ThrowException(String::New("Vertices can only store arrays of length 3."));
+            n->a[dfield]=CSState::CSAttr(value->ToObject()->Get(0)->NumberValue(), value->ToObject()->Get(1)->NumberValue(), value->ToObject()->Get(2)->NumberValue());
+        } else n->a.erase(dfield);
     }
 
     return value;
@@ -1026,7 +1051,6 @@ void CSEngine::RunLogic()
                     ImGui::PushItemWidth(-1);
                     switch(i->second.type) {
                     case CSState::CSAttr::TY_INT:
-                    default:
                         ImGui::InputInt("##value",&i->second.data.d_int,0,0);
                         break;
                     case CSState::CSAttr::TY_BITS:
@@ -1034,6 +1058,9 @@ void CSEngine::RunLogic()
                         break;
                     case CSState::CSAttr::TY_FLOAT:
                         ImGui::InputFloat("##value",&i->second.data.d_float);
+                        break;
+                    case CSState::CSAttr::TY_FLOAT3:
+                        ImGui::InputFloat3("##value",i->second.data.d_float3);
                         break;
                     }
                     ImGui::PopItemWidth();
