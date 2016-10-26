@@ -36,7 +36,7 @@
 #define ENVSTRING "linux x86_64"
 #endif
 
-#define VERSION "0.2.1"
+#define VERSION "0.3"
 #define VERSTRING VERSION" ("ENVSTRING")"
 
 // no idea where these even come from
