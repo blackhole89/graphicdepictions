@@ -7,16 +7,17 @@ Possible applications include typesetting graphs for academic papers and present
 
 You are looking at an early release, and a lot of features and polish are still missing. I am grateful for any bug reports, pull requests, feature suggestions and other feedback.
 
+<img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/sandpile.gif" />
 <a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png" width="300" /></a> <a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png" width="300" /></a> 
  
 
 How to install
 --------------
 
-The easiest way to use this program is to pull one of the binary builds (version 0.2.1 of 2016-10-13):
+The easiest way to use this program is to pull one of the binary builds (version 0.3 of 2016-10-25):
 
-* [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.2.tar.gz)
-* [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.2-win64.zip)
+* [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.3.tar.gz)
+* [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.3-win64.zip)
 
 Once you have unpacked the relevant package, switch into the directory contained and run the binary (`./gdepictions` in a Linux shell, or `gdepictions.exe` on Windows).
 
@@ -97,6 +98,11 @@ Likewise, the set of all edges is made available as `edges()`.
 M = addNode(N.pos.x+0.1, N.pos.y); // or addNode(N.pos.x+0.1, N.pos.y, N.pos.z)
 E = addEdge(M,N);
 ```
+* By default, nodes are drawn white. The display colour of a node `N` can be adjusted by calling `N.setColo(u)r`:
+```javascript
+N = addNode(0,0);   // add node at origin
+N.setColor(1.0,0.0,0.0);    // make it red
+```
 
 By default, scripts are saved with the graph you are editing. (File > Save) You can instead make a script global by right-clicking it in the script list and unchecking `Stored with graph`. You can also quickly enter scripts that will not be saved by right-clicking the graph view and selecting `Execute on selection...`.
 
@@ -127,12 +133,11 @@ Known issues
 
 * Drawing lots of node labels can be slow on some platforms. Generally, the "separate texture for each glyph" approach my font implementation (`fonts.cpp`) uses seems to be much slower than imgui's font atlas + texture coordinates one; I will eventually switch over to it.
 * In the Windows binary build, TikZ export fails to correctly compute node label colours. This is a complete and utter mystery to me at the moment.
-* While the program can be built under OS X, there appears to be a discrepancy in keycodes which prevents it from being useful.
 
 Changelog
 ---------
 
-### 0.3-trunk
+### 0.3
 
 * Added support for manipulating the colour of nodes (N.setColour(float,float,float)) from scripts.
 
