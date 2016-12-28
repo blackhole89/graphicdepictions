@@ -175,6 +175,14 @@ void CSState::DelEdge(CSNode *n1, CSNode *n2)
     }
 }
 
+CSState::CSEdge *CSState::GetEdge(CSNode *n1, CSNode *n2)
+{
+    for(auto i=n1->adje.begin();i!=n1->adje.end();++i) {
+        if( (*i)->n1 == n2 || (*i) ->n2 == n2 ) return *i;
+    }
+    return NULL;
+}
+
 CSState::CSEdge *CSState::AddEdge(CSState::CSNode *n1, CSState::CSNode *n2)
 {
     if(n1==n2) return NULL;

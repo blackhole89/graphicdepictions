@@ -99,6 +99,8 @@ public:
     CSNode* AddNode(float x, float y, float z);
     CSEdge* AddEdge(CSNode *n1, CSNode *n2);
 
+    CSEdge* GetEdge(CSNode *n1, CSNode *n2);
+
     void DelNode(CSNode *n);
     void DelEdge(CSNode *n1, CSNode *n2);
     void DelEdge(CSEdge *e);

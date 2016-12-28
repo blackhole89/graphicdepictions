@@ -265,6 +265,29 @@ Handle<Value> DelEdgeCallback(const Arguments &args)
     return v8::Undefined();
 }
 
+Handle<Value> GetEdgeCallback(const Arguments &args)
+{
+    if (args.Length()<2) return v8::Undefined();
+
+    if(!args[0]->IsObject()) return v8::Undefined();
+    if(!args[1]->IsObject()) return v8::Undefined();
+
+    Handle<External> hn1 = Handle<External>::Cast(Handle<Object>::Cast(args[0])->GetInternalField(0));
+    CSState::CSNode *n1 = (CSState::CSNode*)hn1->Value();
+
+    Handle<External> hn2 = Handle<External>::Cast(Handle<Object>::Cast(args[1])->GetInternalField(0));
+    CSState::CSNode *n2 = (CSState::CSNode*)hn2->Value();
+
+    CSState::CSEdge* e = s.e->st.GetEdge(n1,n2);
+
+    if(e) {
+        auto ewrapped = s.e->edge_templ->NewInstance();
+        ewrapped->SetInternalField(0, External::New(e));
+
+        return ewrapped;
+    } else return v8::Undefined();
+}
+
 Handle<Value> GammaCallback(const Arguments &args)
 {
     if (args.Length()<1) return v8::Undefined();
@@ -443,6 +466,7 @@ void CSEngine::Init(CSMainWindow *wndw)
     global->Set(String::New("addNode"), FunctionTemplate::New(AddNodeCallback));
     global->Set(String::New("addEdge"), FunctionTemplate::New(AddEdgeCallback));
     global->Set(String::New("delEdge"), FunctionTemplate::New(DelEdgeCallback));
+    global->Set(String::New("getEdge"), FunctionTemplate::New(GetEdgeCallback));
     global->Set(String::New("gamma"), FunctionTemplate::New(GammaCallback));
     global->Set(String::New("delta"), FunctionTemplate::New(DeltaCallback));
     global->Set(String::New("nodes"), FunctionTemplate::New(NodesCallback));
