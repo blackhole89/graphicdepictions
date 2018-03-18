@@ -137,6 +137,12 @@ Known issues
 Changelog
 ---------
 
+### 0.4 (beta)
+
+* Nodes and edges can now store arbitrary JavaScript data.
+* Likewise, all global variables created by JS get stored with the graph.
+* Global variables can now be inspected in the user interface.
+
 ### 0.3
 
 * Added support for manipulating the colour of nodes (N.setColour(float,float,float)) from scripts.

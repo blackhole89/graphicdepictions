@@ -1404,7 +1404,8 @@ void CSEngine::RunLogic()
 
     /* Main status */
     ImGui::SetNextWindowPos(ImVec2(130,30),ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("View");
+    ImGui::Begin("View", NULL, ImGuiWindowFlags_ShowBorders);
+    ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
 
     ImGui::Text("Center: %.2f %.2f %.2f", graphics.tx, graphics.ty, graphics.tz);
     ImGui::Text("H Angle: %.1f°", graphics.angle*180/PI);
@@ -1416,7 +1417,8 @@ void CSEngine::RunLogic()
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(5,30),ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Graph");
+    ImGui::Begin("Graph", NULL, ImGuiWindowFlags_ShowBorders);
+    ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
 
     if(!st.nselected) ImGui::Text("Vertices: %d   ", st.nodes.size());
     else ImGui::Text("Vertices: %d/%d", st.nselected, st.nodes.size());
@@ -1427,7 +1429,8 @@ void CSEngine::RunLogic()
     ImGui::SetNextWindowPos(ImVec2(300,30),ImGuiSetCond_FirstUseEver);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(3,1));
-    ImGui::Begin("Selection Groups",NULL,ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Selection Groups",NULL,ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_ShowBorders);
+    ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,ImVec2(1,1));
     for(int i=0;i<NSELGROUPS;++i) {
@@ -1445,7 +1448,8 @@ void CSEngine::RunLogic()
     ImGui::PopStyleVar();
 
     ImGui::SetNextWindowPos(ImVec2(5,150),ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Node Appearance");
+    ImGui::Begin("Node Appearance",NULL,ImGuiWindowFlags_ShowBorders);
+    ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
 
     ImGui::PushItemWidth(40.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,ImVec2(1,1));
@@ -1473,7 +1477,8 @@ void CSEngine::RunLogic()
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(10,1));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(4,8));
-    ImGui::Begin("Scripts",NULL,ImGuiWindowFlags_NoScrollbar);
+    ImGui::Begin("Scripts",NULL,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_ShowBorders);
+    ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
 
     ImGui::BeginChild("ScrollingRegion", ImVec2(-1,-ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::Columns(2,"##scolumns",false);
@@ -1509,7 +1514,8 @@ void CSEngine::RunLogic()
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(10,1));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(4,8));
-    ImGui::Begin("Data",NULL,ImGuiWindowFlags_NoScrollbar);
+    ImGui::Begin("Data",NULL,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_ShowBorders);
+    ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
 
     ImGui::BeginChild("ScrollingRegion", ImVec2(-1,-ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::Columns(2,"##scolumns");
@@ -1656,7 +1662,8 @@ void CSEngine::RunLogic()
         show_about=false;
     }
     ImGui::SetNextWindowSize(ImVec2(350,340),ImGuiSetCond_Appearing);
-    if(ImGui::BeginPopupModal("About graphic depictions",NULL,ImGuiWindowFlags_NoResize)) {
+    if(ImGui::BeginPopupModal("About graphic depictions",NULL,ImGuiWindowFlags_NoResize | ImGuiWindowFlags_ShowBorders)) {
+        ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
         ImVec2 p = ImGui::GetCursorScreenPos();
         p.x+=ImGui::GetWindowContentRegionWidth()/2;
@@ -1691,7 +1698,8 @@ void CSEngine::RunLogic()
     /* run script for selected nodes */
     ImGui::SetNextWindowSize(ImVec2(420,420),ImGuiSetCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(200,200),ImGuiSetCond_FirstUseEver);
-    if(rs_every_node && ImGui::Begin("Run script for selected nodes")) {
+    if(rs_every_node && ImGui::Begin("Run script for selected nodes", NULL, ImGuiWindowFlags_ShowBorders)) {
+        ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
         static char buf[4096]={0};
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1));
         ImGui::BeginChild("ScrollingRegion", ImVec2(0,-ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -1728,13 +1736,14 @@ void CSEngine::RunLogic()
         sprintf(title,"%s - Script Editor###scripted", editor_tbuf);
         ImGui::SetNextWindowSize(ImVec2(400,400),ImGuiSetCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(200,200),ImGuiSetCond_FirstUseEver);
-        ImGui::Begin(title);
+        ImGui::Begin(title, NULL, ImGuiWindowFlags_ShowBorders);
+        ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,2));
         ImGui::SameLine(9.0f);
         ImGui::InputText("##title",editor_tbuf,64);
-        ImGui::SameLine(ImGui::GetWindowContentRegionWidth()-55.0f);
+        ImGui::SameLine(ImGui::GetWindowContentRegionWidth()-75.0f);
 
-        ImGui::Selectable("On nodes",&editor_is_pernode,0,ImVec2(60,0));
+        ImGui::Checkbox("On nodes",&editor_is_pernode);
 
         if(ImGui::IsItemHovered()) {
             if(editor_is_pernode) ImGui::SetTooltip("Script is run once for each selected node.\nN is defined to refer to the current node.");

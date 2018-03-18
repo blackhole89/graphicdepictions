@@ -708,6 +708,9 @@ void CSState::Save()
         fprintf(fl,"\n");
     }
 
+    /* TODO: save global vars */
+    /* TODO: wipe global vars when resetting state */
+
     fprintf(fl,"%d\n",scripts.size());
     for(int id=0;id<scripts.size();++id) {
         fprintf(fl,"%d byte %s script %s\n", scripts[id].code.length(),scripts[id].onNodes?"node":"graph", scripts[id].name.c_str());

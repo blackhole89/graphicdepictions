@@ -58,7 +58,7 @@ void CSGraphics::Init(CSEngine *ep)
     ImGui::GetStyle().WindowRounding=1.0f;
     ImGui::GetStyle().FramePadding=ImVec2(5,2);
     ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4( 0.1f,0.1f,0.3f,0.8f);
-    ImGui::GetStyle().Colors[ImGuiCol_Border] = ImVec4(0.9,0.9,1,1.0);
+    ImGui::GetStyle().Colors[ImGuiCol_Border] = ImVec4(0,0,0,0.7);
     ImGui::GetStyle().Colors[ImGuiCol_TitleBg] = ImVec4( 0.4f,0.4f,0.6f,0.8f);
     ImGui::GetStyle().Colors[ImGuiCol_Text] = ImVec4( 1.0f, 1.0f, 1.0f, 1.0f);
     ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive] = ImVec4( 0.4f,0.4f,0.6f,0.8f);
