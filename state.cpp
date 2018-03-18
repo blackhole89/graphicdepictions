@@ -111,6 +111,8 @@ void CSState::DelNode(CSNode *n)
 
 void CSState::DelEdge(CSEdge *e)
 {
+    s.e->DeepWipe(e);
+
     e->n1->adje.erase(e);
     e->n2->adje.erase(e);
     e->n1->adj.erase(e->n2);
