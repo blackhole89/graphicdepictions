@@ -46,6 +46,7 @@ The following list of examples doubles as an outline of basic workflow:
 * A right mouse button click in neutral mode opens the context menu.
 * `D` deletes all edges between selected vertices.
 * `G` initiates moving of the currently selected vertices by moving the mouse pointer. Click the graph view with the left mouse button to place the vertices at their current location, or press `Esc` to cancel.
+* `X` extrudes the currently selected vertices, that is, it duplicates the subgraph induced by them and connects each new node to the respective old node that gave rise to it. Pressing `X` automatically initiates `G`o mode on the new vertices.
 
 ### Moving the camera
 
