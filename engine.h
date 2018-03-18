@@ -34,31 +34,28 @@ struct CSScript {
     bool onNodes;
 };
 
+enum {
+    NO_GRAPH=1,
+    NO_NODE,
+    NO_EDGE,
+    NO_NODESET,
+    NO_EDGESET
+};
+
 class CSState {
 public:
     struct CSAttr {
-        enum {
-            TY_FLOAT,
-            TY_FLOAT3,
-            TY_INT,
-            TY_BITS
-        } type;
-        union {
-            float d_float;
-            float d_float3[3];
-            int d_int;
-            int d_bits;
-        } data;
+        v8::Persistent<v8::Value> j_data;
 
-        CSAttr(float);
-        CSAttr(float,float,float);
-        CSAttr(int,bool bits=false);
+        CSAttr(char *);
         CSAttr();
+        ~CSAttr();
 
         void PrettyPrint(char *buf);
 
         void ToString(char *buf);
         static CSAttr FromString(char *buf);
+        double ArrayGet(int i); // hack for node colour
     };
     typedef std::map<std::string, CSAttr> attrs;
 
@@ -81,7 +78,8 @@ public:
         std::set<CSNode*> adj;
         std::set<CSEdge*> adje;
 
-        bool selected;    };
+        bool selected;
+    };
 
     std::set<CSNode*> nodes;
     std::set<CSEdge*> edges;
@@ -129,7 +127,8 @@ public:
     void SaveAs();
     void Save();
     void Load();
-    void Clear();};
+    void Clear();
+};
 
 class CSEngine {
 	friend class CSGraphics;
@@ -181,6 +180,11 @@ public:
     /* return true iff entry was not erased */
 	bool ScriptListEntry(CSScript *s, int id, bool local);
 
+    /* for property editor */
+    void RenderNamedProperty(const char *name, v8::Handle<v8::Value> val, bool show_builtins);
+    void RenderObjectProps(v8::Handle<v8::Object> obj, bool show_builtins);
+    void RenderAttrs(CSState::attrs *a, bool show_builtins);
+
 	void Init(CSMainWindow *wndw);
 	void Run();
 	void RunLogic();
@@ -193,6 +197,9 @@ public:
 
 	/* closest vertex in screenspace, within rmax */
 	CSState::CSNode* GetClosestVertex(int x, int y, float rmax);
+
+    v8::Local<v8::Value> FromJSON(char *json);
+    std::string ToJSON(v8::Handle<v8::Value>);
 
 	bool CompileScript(const char *code,const char *name, v8::Handle<v8::Script> &out);
 	bool RunScriptForNode(CSState::CSNode *n, v8::Handle<v8::Script> script);

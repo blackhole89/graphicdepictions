@@ -28,6 +28,38 @@
 
 using namespace v8;
 
+/* helpers */
+const char *nonames[6]={"?","Graph","Node","Edge","Node Set","Edge Set"};
+
+Local<Object> WrapNode(CSState::CSNode *n)
+{
+    auto nwrapped = s.e->node_templ->NewInstance();
+    nwrapped->SetInternalField(0, External::New(n));
+    nwrapped->SetInternalField(1, Integer::New(NO_NODE));
+    return nwrapped;
+}
+Local<Object> WrapEdge(CSState::CSEdge *e)
+{
+    auto ewrapped = s.e->edge_templ->NewInstance();
+    ewrapped->SetInternalField(0, External::New(e));
+    ewrapped->SetInternalField(1, Integer::New(NO_EDGE));
+    return ewrapped;
+}
+Local<Object> WrapNodeSet(std::set<CSState::CSNode*> *ns)
+{
+    auto swrapped = s.e->set_templ->NewInstance();
+    swrapped->SetInternalField(0, External::New(ns));
+    swrapped->SetInternalField(1, Integer::New(NO_NODESET));
+    return swrapped;
+}
+Local<Object> WrapEdgeSet(std::set<CSState::CSEdge*> *es)
+{
+    auto swrapped = s.e->edge_set_templ->NewInstance();
+    swrapped->SetInternalField(0, External::New(es));
+    swrapped->SetInternalField(1, Integer::New(NO_EDGESET));
+    return swrapped;
+}
+
 Handle<Value> ValueOfCallback(const Arguments &args)
 {
     Handle<External> he = Handle<External>::Cast(args.Holder()->GetInternalField(0));
@@ -45,9 +77,47 @@ Handle<Value> SetColourCallback(const Arguments &args)
     Handle<External> hn = Handle<External>::Cast(args.Holder()->GetInternalField(0));
     CSState::CSNode *n = (CSState::CSNode*)hn->Value();
 
-    n->a["clr"] = CSState::CSAttr(args[0]->NumberValue(), args[1]->NumberValue(), args[2]->NumberValue());
+    char buf[256];
+    sprintf(buf,"[%f,%f,%f]",args[0]->NumberValue(), args[1]->NumberValue(), args[2]->NumberValue());
+
+    n->a["clr"] = CSState::CSAttr(buf);
 
     return v8::Undefined();
+}
+
+Local<Value> CSEngine::FromJSON(char *j)
+{
+    HandleScope scope;
+    Handle<Value> jsonVal = s.e->v8ctx->Global()->Get(String::New("JSON"));
+    Handle<Object> json = jsonVal->ToObject();
+    Handle<Value> parseVal = json->Get(String::New("strong_parse"));
+    Handle<Function> parse = Handle<Function>::Cast(parseVal); 
+    
+    Handle<Value> input=String::New(j);
+
+    Handle<Value> ret= parse->Call(json, 1, &input);
+
+    printf("From JSON: %s becomes %s.\n",j,*String::Utf8Value(ret));
+
+    return scope.Close(ret);
+}
+
+std::string CSEngine::ToJSON(Handle<Value> val)
+{
+    HandleScope scope;
+    Handle<Value> jsonVal = s.e->v8ctx->Global()->Get(String::New("JSON"));
+    Handle<Object> json = jsonVal->ToObject();
+    Handle<Value> stringifyVal = json->Get(String::New("strong_stringify"));
+    Handle<Function> stringify = Handle<Function>::Cast(stringifyVal);
+
+    Handle<Value> res = stringify->Call(json, 1, &val);
+
+    Handle<String> st = res->ToString();
+    char *buf = new char[st->Utf8Length()+1];
+    res->ToString()->WriteUtf8(buf);
+    std::string ret(buf);
+    delete buf;
+    return ret;
 }
 
 Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
@@ -73,19 +143,7 @@ Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
         return Boolean::New(n->selected);
     } else if(n->a.count(dfield)) {
         CSState::CSAttr *a = &n->a[dfield];
-        switch(a->type) {
-        case CSState::CSAttr::TY_INT: case CSState::CSAttr::TY_BITS:
-            return Integer::New(a->data.d_int);
-        case CSState::CSAttr::TY_FLOAT:
-            return Number::New(a->data.d_float);
-        case CSState::CSAttr::TY_FLOAT3:
-            // todo: this should return a native object so something like N.clr[0]=0.1 works
-            Handle<Array> r = Array::New(3);
-            r->Set(0, Number::New(a->data.d_float3[0]));
-            r->Set(1, Number::New(a->data.d_float3[1]));
-            r->Set(2, Number::New(a->data.d_float3[2]));
-            return r;
-        }
+        return a->j_data;
     }
     return String::New("",0);
 }
@@ -109,14 +167,15 @@ Handle<Value> NodeSet(Local<String> name, Local<Value> value, const AccessorInfo
     } else {
         if( value->IsUndefined() )
             n->a.erase(dfield);
-        else if( value->IsInt32() )
-            n->a[dfield]=CSState::CSAttr(value->Int32Value());
-        else if( value->IsNumber() )
-            n->a[dfield]=CSState::CSAttr((float)value->NumberValue());
-        else if( value->IsArray() ) {
-            if( value->ToObject()->Get(String::New("length"))->Uint32Value() != 3) return ThrowException(String::New("Vertices can only store arrays of length 3."));
-            n->a[dfield]=CSState::CSAttr(value->ToObject()->Get(0)->NumberValue(), value->ToObject()->Get(1)->NumberValue(), value->ToObject()->Get(2)->NumberValue());
-        } else n->a.erase(dfield);
+        else {
+            /* deep copy for sanity */
+            std::string res = s.e->ToJSON(value);
+    
+            n->a[dfield]=CSState::CSAttr((char*)res.c_str());
+
+            printf("Setting. %s, %s\n",res.c_str(),*String::Utf8Value(n->a[dfield].j_data));
+        }
+
     }
 
     return value;
@@ -136,26 +195,12 @@ Handle<Value> EdgeGet(Local<String> name, const AccessorInfo& info)
     } else if(dfield=="valueOf") {
         return FunctionTemplate::New(ValueOfCallback)->GetFunction();
     } else if(dfield=="n1") {
-        auto nwrapped = s.e->node_templ->NewInstance();
-        nwrapped->SetInternalField(0, External::New(e->n1));
-
-        return nwrapped;
+        return WrapNode(e->n1);
     } else if(dfield=="n2") {
-        auto nwrapped = s.e->node_templ->NewInstance();
-        nwrapped->SetInternalField(0, External::New(e->n2));
-
-        return nwrapped;
+        return WrapNode(e->n2);
     } else if(e->a.count(dfield)) {
         CSState::CSAttr *a = &e->a[dfield];
-        switch(a->type) {
-        case CSState::CSAttr::TY_INT: case CSState::CSAttr::TY_BITS:
-            return Integer::New(a->data.d_int);
-        case CSState::CSAttr::TY_FLOAT:
-            return Number::New(a->data.d_float);
-        case CSState::CSAttr::TY_FLOAT3:
-            Handle<Value> r = Array::New(3); //TODO
-            return r;
-        }
+        return a->j_data;
     }
     return String::New("",0);
 }
@@ -172,9 +217,11 @@ Handle<Value> EdgeSet(Local<String> name, Local<Value> value, const AccessorInfo
     } else {
         if( value->IsUndefined() )
             e->a.erase(dfield);
-        else if( value->IsInt32() )
-            e->a[dfield]=CSState::CSAttr(value->Int32Value());
-        else e->a[dfield]=CSState::CSAttr((float)value->NumberValue());
+        else {
+            std::string res = s.e->ToJSON(value);
+    
+            e->a[dfield]=CSState::CSAttr((char*)res.c_str());
+        }
     }
 
     return value;
@@ -218,10 +265,7 @@ Handle<Value> AddNodeCallback(const Arguments &args)
 
     CSState::CSNode *n=s.e->st.AddNode(x,y,z);
 
-    auto nwrapped = s.e->node_templ->NewInstance();
-    nwrapped->SetInternalField(0, External::New(n));
-
-    return nwrapped;
+    return WrapNode(n);
 }
 
 Handle<Value> AddEdgeCallback(const Arguments &args)
@@ -240,10 +284,7 @@ Handle<Value> AddEdgeCallback(const Arguments &args)
     CSState::CSEdge* e = s.e->st.AddEdge(n1,n2);
 
     if(e) {
-        auto ewrapped = s.e->edge_templ->NewInstance();
-        ewrapped->SetInternalField(0, External::New(e));
-
-        return ewrapped;
+        return WrapEdge(e);
     } else return v8::Undefined();
 }
 
@@ -281,10 +322,7 @@ Handle<Value> GetEdgeCallback(const Arguments &args)
     CSState::CSEdge* e = s.e->st.GetEdge(n1,n2);
 
     if(e) {
-        auto ewrapped = s.e->edge_templ->NewInstance();
-        ewrapped->SetInternalField(0, External::New(e));
-
-        return ewrapped;
+        return WrapEdge(e);
     } else return v8::Undefined();
 }
 
@@ -297,10 +335,7 @@ Handle<Value> GammaCallback(const Arguments &args)
     Handle<External> hn1 = Handle<External>::Cast(Handle<Object>::Cast(args[0])->GetInternalField(0));
     CSState::CSNode *n1 = (CSState::CSNode*)hn1->Value();
 
-    auto nwrapped = s.e->set_templ->NewInstance();
-    nwrapped->SetInternalField(0, External::New(&n1->adj));
-
-    return nwrapped;
+    return WrapNodeSet(&n1->adj);
 }
 
 Handle<Value> DeltaCallback(const Arguments &args)
@@ -312,30 +347,21 @@ Handle<Value> DeltaCallback(const Arguments &args)
     Handle<External> hn1 = Handle<External>::Cast(Handle<Object>::Cast(args[0])->GetInternalField(0));
     CSState::CSNode *n1 = (CSState::CSNode*)hn1->Value();
 
-    auto nwrapped = s.e->edge_set_templ->NewInstance();
-    nwrapped->SetInternalField(0, External::New(&n1->adje));
-
-    return nwrapped;
+    return WrapEdgeSet(&n1->adje);
 }
 
 Handle<Value> NodesCallback(const Arguments &args)
 {
     if (args.Length()!=0) return v8::Undefined();
 
-    auto nwrapped = s.e->set_templ->NewInstance();
-    nwrapped->SetInternalField(0, External::New(&s.e->st.nodes));
-
-    return nwrapped;
+    return WrapNodeSet(&s.e->st.nodes);
 }
 
 Handle<Value> EdgesCallback(const Arguments &args)
 {
     if (args.Length()!=0) return v8::Undefined();
 
-    auto ewrapped = s.e->edge_set_templ->NewInstance();
-    ewrapped->SetInternalField(0, External::New(&s.e->st.edges));
-
-    return ewrapped;
+    return WrapEdgeSet(&s.e->st.edges);
 }
 
 Handle<Value> SizeCallback(const Arguments &args)
@@ -370,8 +396,7 @@ Handle<Value> ForeachCallback(const Arguments &args)
 
     Handle<Function> fn = Handle<Function>::Cast(args[0]);
     for(auto i=ns.begin(); i!=ns.end(); ++i) {
-        Local<Object> nwrapped = s.e->node_templ->NewInstance();
-        nwrapped->SetInternalField(0, External::New(*i));
+        Local<Object> nwrapped = WrapNode(*i);
         Local<Value> val[]= { nwrapped };
 
         fn->Call(s.e->v8ctx->Global(), 1, val);
@@ -394,8 +419,7 @@ Handle<Value> EdgeSetForeachCallback(const Arguments &args)
 
     Handle<Function> fn = Handle<Function>::Cast(args[0]);
     for(auto i=es.begin(); i!=es.end(); ++i) {
-        Local<Object> ewrapped = s.e->edge_templ->NewInstance();
-        ewrapped->SetInternalField(0, External::New(*i));
+        Local<Object> ewrapped = WrapEdge(*i);
         Local<Value> val[]= { ewrapped };
 
         fn->Call(s.e->v8ctx->Global(), 1, val);
@@ -415,14 +439,12 @@ Handle<Value> EdgeForeachCallback(const Arguments &args)
 
     Handle<Function> fn = Handle<Function>::Cast(args[0]);
 
-    Local<Object> n1wrapped = s.e->node_templ->NewInstance();
-    n1wrapped->SetInternalField(0, External::New(e->n1));
+    Local<Object> n1wrapped = WrapNode(e->n1);
     Local<Value> val1[]= { n1wrapped };
 
     fn->Call(s.e->v8ctx->Global(), 1, val1);
 
-    Local<Object> n2wrapped = s.e->node_templ->NewInstance();
-    n2wrapped->SetInternalField(0, External::New(e->n2));
+    Local<Object> n2wrapped = WrapNode(e->n2);
     Local<Value> val2[]= { n2wrapped };
 
     fn->Call(s.e->v8ctx->Global(), 1, val2);
@@ -477,29 +499,41 @@ void CSEngine::Init(CSMainWindow *wndw)
 
     HandleScope hslocal;
     Handle<ObjectTemplate> h = ObjectTemplate::New();
-    h->SetInternalFieldCount(1);
+    h->SetInternalFieldCount(2);
     h->SetNamedPropertyHandler(NodeGet,NodeSet);
     node_templ = Persistent<ObjectTemplate>::New(hslocal.Close(h));
 
     HandleScope hslocal2;
     h = ObjectTemplate::New();
-    h->SetInternalFieldCount(1);
+    h->SetInternalFieldCount(2);
     h->Set(String::New("forEach"), FunctionTemplate::New(ForeachCallback));
     h->Set(String::New("size"), FunctionTemplate::New(SizeCallback));
     set_templ = Persistent<ObjectTemplate>::New(hslocal2.Close(h));
 
     HandleScope hslocal3;
     h = ObjectTemplate::New();
-    h->SetInternalFieldCount(1);
+    h->SetInternalFieldCount(2);
     h->SetNamedPropertyHandler(EdgeGet,EdgeSet);
     edge_templ = Persistent<ObjectTemplate>::New(hslocal3.Close(h));
 
     HandleScope hslocal4;
     h = ObjectTemplate::New();
-    h->SetInternalFieldCount(1);
+    h->SetInternalFieldCount(2);
     h->Set(String::New("forEach"), FunctionTemplate::New(EdgeSetForeachCallback));
     h->Set(String::New("size"), FunctionTemplate::New(EdgeSetSizeCallback));
     edge_set_templ = Persistent<ObjectTemplate>::New(hslocal4.Close(h));
+
+    /* global scripts */
+    char buf[10240];
+    FILE *fl=fopen("serialise.js","r");
+    if(!fl) return;
+    int len = fread(buf,1,10240,fl);
+    buf[len]=0;
+    HandleScope hslocal5;
+    Handle<Script> s;
+    CompileScript(buf,"serialise.js",s);
+    RunScript(s);
+    fclose(fl);
 }
 
 void CSEngine::LoadScripts()
@@ -553,8 +587,7 @@ bool CSEngine::CompileScript(const char *code, const char* name, Handle<Script> 
 bool CSEngine::RunScriptForNode(CSState::CSNode *n, Handle<Script> script)
 {
     HandleScope hslocal;
-    auto nwrapped = node_templ->NewInstance();
-    nwrapped->SetInternalField(0, External::New(n));
+    auto nwrapped = WrapNode(n);
     v8ctx->Global()->Set(String::New("N"), hslocal.Close(nwrapped));
     TryCatch try_catch;
     script->Run();
@@ -781,6 +814,100 @@ bool CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
         return false;
     }
     return true;
+}
+
+void CSEngine::RenderObjectProps(Handle<Object> obj, bool show_builtins)
+{
+    ImGui::PushID(obj->GetIdentityHash());
+
+    HandleScope scope;
+    Handle<Array> props = obj->GetPropertyNames();
+    for(int i=0;i<props->Length();++i) {
+        ImGui::PushID(i);
+        ImGui::AlignFirstTextHeightToWidgets();
+        
+        Handle<Value> pname = props->Get(i);
+        Handle<Value> pvalue = obj->Get(pname);
+        
+        RenderNamedProperty(*String::Utf8Value(pname), pvalue, show_builtins);
+
+        ImGui::PopID();
+    }
+    ImGui::PopID();
+}
+
+void CSEngine::RenderAttrs(CSState::attrs *a, bool show_builtins)
+{
+    ImGui::PushID(a);
+    int n=0;
+    for(auto i = a->begin(); i!= a->end(); ++i) {
+        ++n;
+        ImGui::PushID(n);
+        ImGui::AlignFirstTextHeightToWidgets();
+        
+        RenderNamedProperty(i->first.c_str(), i->second.j_data, show_builtins);
+
+        ImGui::PopID();
+    }
+    ImGui::PopID();
+}
+
+void CSEngine::RenderNamedProperty(const char *name, v8::Handle<v8::Value> pvalue, bool show_builtins)
+{
+    if(pvalue->IsObject()) {
+        Handle<Object> pobj = pvalue->ToObject();
+        if(pvalue->IsFunction()) {
+            if(pobj.As<Function>()->GetScriptLineNumber() == Function::kLineOffsetNotFound) {
+                if(show_builtins) {
+                    ImGui::Bullet();
+                    ImGui::Selectable(name);
+                    ImGui::NextColumn();
+                    ImGui::Text("builtin function");
+                    ImGui::NextColumn();
+                }
+                return;
+            }
+        }
+        bool node_open = ImGui::TreeNode("##object",name);
+        ImGui::NextColumn();
+        if(pobj->InternalFieldCount() > 1) {
+            /* native object */
+            int notype = pobj->GetInternalField(1)->Int32Value();
+            ImGui::Text("%s",nonames[notype]);
+            ImGui::NextColumn();
+
+            if(node_open) {
+                Handle<External> hn = Handle<External>::Cast(pobj->GetInternalField(0));
+    
+                switch(notype) {
+                case NO_NODE:
+                    CSState::CSNode *n; n = (CSState::CSNode*)hn->Value();
+                    RenderAttrs(&n->a, show_builtins);
+                    break;
+                case NO_EDGE:
+                    CSState::CSEdge *e; e = (CSState::CSEdge*)hn->Value();
+                    RenderAttrs(&e->a, show_builtins);
+                    break;
+                }
+                ImGui::TreePop();
+            }
+        } else {
+            /* javascript object */
+            ImGui::Text(*String::Utf8Value(pvalue));
+            ImGui::NextColumn();
+            if(node_open) {
+                RenderObjectProps(pobj, show_builtins);
+                ImGui::TreePop();
+            }
+        }
+    } else {
+        ImGui::Bullet();
+        ImGui::Selectable(name);
+        ImGui::NextColumn();
+        ImGui::Text(*String::Utf8Value(pvalue));
+        //ImGui::InputText("##value",*String::Utf8Value(pvalue),32);
+        ImGui::NextColumn();
+    }
 }
 
 void CSEngine::AcEdge(float x, float y)
@@ -1067,30 +1194,8 @@ void CSEngine::RunLogic()
                 ImGui::Text("pos.y"); ImGui::NextColumn(); ImGui::Text("%.2f",v->pos[1]); ImGui::NextColumn();
                 ImGui::Text("pos.z"); ImGui::NextColumn(); ImGui::Text("%.2f",v->pos[2]); ImGui::NextColumn();
 
-                for(auto i=v->a.begin(); i!=v->a.end(); ++i) {
-                    ImGui::PushID(i->first.c_str());
-                    ImGui::AlignFirstTextHeightToWidgets();
-                    ImGui::Text(i->first.c_str());
-                    ImGui::NextColumn();
-                    ImGui::PushItemWidth(-1);
-                    switch(i->second.type) {
-                    case CSState::CSAttr::TY_INT:
-                        ImGui::InputInt("##value",&i->second.data.d_int,0,0);
-                        break;
-                    case CSState::CSAttr::TY_BITS:
-                        ImGui::InputInt("##value",&i->second.data.d_int,0,0);
-                        break;
-                    case CSState::CSAttr::TY_FLOAT:
-                        ImGui::InputFloat("##value",&i->second.data.d_float);
-                        break;
-                    case CSState::CSAttr::TY_FLOAT3:
-                        ImGui::InputFloat3("##value",i->second.data.d_float3);
-                        break;
-                    }
-                    ImGui::PopItemWidth();
-                    ImGui::NextColumn();
-                    ImGui::PopID();
-                }
+                RenderAttrs(&v->a, false);
+
                 ImGui::Columns(1);
                 ImGui::EndMenu();
             }
@@ -1287,6 +1392,31 @@ void CSEngine::RunLogic()
     if(ImGui::Button("Add")) {
         st.scripts.push_back( {"New Script","",true} );
     }
+
+    ImGui::End();
+    ImGui::PopStyleVar();
+    ImGui::PopStyleVar();
+
+    /* javascript object browser */
+    ImGui::SetNextWindowPos(ImVec2(5,450),ImGuiSetCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(200,150),ImGuiSetCond_FirstUseEver);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(10,1));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(4,8));
+    ImGui::Begin("Data",NULL,ImGuiWindowFlags_NoScrollbar);
+
+    ImGui::BeginChild("ScrollingRegion", ImVec2(-1,-ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::Columns(2,"##scolumns");
+
+    static bool show_builtins = false;
+    RenderObjectProps(v8ctx->Global(),show_builtins);
+
+    ImGui::Columns(1);
+    ImGui::EndChild();
+
+    ImGui::Separator();
+
+    ImGui::Checkbox("Show builtins",&show_builtins);
 
     ImGui::End();
     ImGui::PopStyleVar();

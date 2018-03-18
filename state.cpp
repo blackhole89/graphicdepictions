@@ -24,100 +24,42 @@
 #else
 #endif
 
-CSState::CSAttr::CSAttr(float f)
+CSState::CSAttr::CSAttr(char *j)
 {
-    type=TY_FLOAT;
-    data.d_float=f;
-}
-
-CSState::CSAttr::CSAttr(float f1,float f2,float f3)
-{
-    type=TY_FLOAT3;
-    data.d_float3[0]=f1;
-    data.d_float3[1]=f2;
-    data.d_float3[2]=f3;
-}
-
-CSState::CSAttr::CSAttr(int i, bool bits)
-{
-    type=TY_INT;
-    if(bits) type=TY_BITS;
-    data.d_int=i;
+    j_data = v8::Persistent<v8::Value>::New(s.e->FromJSON(j));
+    printf("j_data is now %s.\n",*v8::String::Utf8Value(j_data));
 }
 
 CSState::CSAttr::CSAttr()
 {}
 
+CSState::CSAttr::~CSAttr()
+{
+}
+
 void CSState::CSAttr::PrettyPrint(char *buf)
 {
-    switch(type) {
-    case TY_INT:
-        sprintf(buf,"%d",data.d_int);
-        break;
-    case TY_BITS:
-        int b;
-        for(b=0;b<=floor(0.01f+log(data.d_bits)/log(2.0f));++b) {
-            buf[b]=(data.d_bits&(1<<b))?'1':'0';
-        }
-        buf[b]=0;
-        if(!b) {
-            buf[b]='0';
-            buf[b+1]=0;
-        }
-        break;
-    case TY_FLOAT:
-        sprintf(buf,"%.3f",data.d_float);
-        break;
-    case TY_FLOAT3:
-        sprintf(buf,"[%.2f,%.2f,%.2f]",data.d_float3[0],data.d_float3[1],data.d_float3[2]);
-        break;
-    }
+    sprintf(buf,"%s",*v8::String::Utf8Value(j_data));
 }
 
 void CSState::CSAttr::ToString(char *buf)
 {
-    switch(type) {
-    case TY_INT:
-        sprintf(buf,"i%d",data.d_int);
-        break;
-    case TY_BITS:
-        sprintf(buf,"b%d",data.d_int);
-        break;
-    case TY_FLOAT:
-        sprintf(buf,"f%.8f",data.d_float);
-        break;
-    case TY_FLOAT3:
-        sprintf(buf,"F[%.8f,%.8f,%.8f]",data.d_float3[0],data.d_float3[1],data.d_float3[2]);
-        break;
-    }
+    std::string str = s.e->ToJSON(j_data);
+    sprintf(buf,"j%d,%s",str.length(),str.c_str());
+    return;
 }
 
 CSState::CSAttr CSState::CSAttr::FromString(char *buf)
 {
-    int d_i; float d_f, d_f2, d_f3;
-    switch(buf[0]) {
-    case 'i':
-        sscanf(buf+1,"%d ",&d_i);
-        return CSAttr(d_i,false);
-        break;
-    case 'b':
-        sscanf(buf+1,"%d ",&d_i);
-        return CSAttr(d_i,true);
-        break;
-    case 'f':
-        sscanf(buf+1,"%f ",&d_f);
-        return CSAttr(d_f);
-        break;
-    case 'F':
-        sscanf(buf+1,"[%f,%f,%f] ",&d_f, &d_f2, &d_f3);
-        return CSAttr(d_f,d_f2,d_f3);
-        break;
-    default:
-        return CSAttr();
-        break;
-    }
+    return CSAttr(buf);
 }
 
+double CSState::CSAttr::ArrayGet(int i)
+{
+    if(!j_data->IsArray()) return 0.0;
+    if(!j_data.As<v8::Array>()->Get(i)->IsNumber()) return 0.0;    
+    return j_data.As<v8::Array>()->Get(i)->NumberValue();   
+}
 
 CSState::CSNode *CSState::AddNode(float x, float y, float z)
 {
@@ -384,7 +326,9 @@ void CSState::MkDiscreteCube(int dim)
         nodes[i] = AddNode( x*0.1, y*0.1, z*0.1 );
         if(!nodes[i]->selected) ++nselected;
         nodes[i]->selected=true;
-        nodes[i]->a["label"] = CSAttr(i,true);
+        char buf[12];
+        sprintf(buf,"%d",i);
+        nodes[i]->a["label"] = CSAttr(buf);
     }
 
     for(int i=0;i<1<<dim;++i) {
@@ -581,9 +525,19 @@ void CSState::Load()
         if(sel) ++nselected;
 
         for(int j=0;j<nattrs;++j) {
-            char buf[128],value[128];
-            fscanf(fl," \"%[^\"]\"=%[^ \n] ",buf,value);
-            n->a[buf]=CSAttr::FromString(value);
+            char buf[128],buf2[128]; char type; int len;
+            fscanf(fl," \"%[^\"]\"=%c",buf,&type);
+            if(type=='j') {
+                fscanf(fl,"%d,",&len);
+                char *json = new char[len+1];
+                fread(json,1,len,fl); json[len]=0;
+                n->a[buf]=CSAttr::FromString(json);
+                delete json;
+            } else {
+                // old-style data
+                fscanf(fl,"%[^\n] ",buf2);
+                n->a[buf]=CSAttr::FromString(buf2);
+            }
         }
     }
 
@@ -599,9 +553,19 @@ void CSState::Load()
             int nattrs;
             fscanf(fl," %d ",&nattrs);
             for(int j=0;j<nattrs;++j) {
-                char buf[128],value[128];
-                fscanf(fl," \"%[^\"]\"=%[^ \n] ",buf,value);
-                e->a[buf]=CSAttr::FromString(value);
+                char buf[128],buf2[128]; char type; int len;
+                fscanf(fl," \"%[^\"]\"=%c",buf,&type);
+                if(type=='j') {
+                    fscanf(fl,"%d,",&len);
+                    char *json = new char[len+1];
+                    fread(json,1,len,fl); json[len]=0;
+                    e->a[buf]=CSAttr::FromString(json);
+                    delete json;
+                } else {
+                    // old-style data
+                    fscanf(fl,"%[^\n] ",buf2);
+                    e->a[buf]=CSAttr::FromString(buf2);
+                }
             }
         }
     }
@@ -661,7 +625,7 @@ void CSState::Save()
     FILE *fl = fopen(last_filename,"w");
     if(!fl) return;
 
-    fprintf(fl,"version 1\n");
+    fprintf(fl,"version 2\n");
 
     fprintf(fl,"%s\n",s.e->use_3d?"3D":"2D");
 

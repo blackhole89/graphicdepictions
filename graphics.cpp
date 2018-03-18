@@ -289,7 +289,7 @@ void CSGraphics::DoDraw()
 
         glColor4fv(config.n_fill);
         if( (*i)->a.count("clr") ) {
-            glColor3fv((*i)->a["clr"].data.d_float3);
+            glColor3f((*i)->a["clr"].ArrayGet(0), (*i)->a["clr"].ArrayGet(1), (*i)->a["clr"].ArrayGet(2));
         }
         glBegin(GL_QUADS);
             glVertex2f(-5,-5);
