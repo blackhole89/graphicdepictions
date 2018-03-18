@@ -153,6 +153,12 @@
                 return "null";
             }
 
+// Is this a wrapped native object?
+
+            if(typeof value._nativeRendition === "function") {
+                return value._nativeRendition();
+            }
+
 // Make an array to hold the partial results of stringifying this object value.
 
             gap += indent;
@@ -285,6 +291,18 @@
 
     JSON.strong_parse = function (input) {
         return eval("(" + input + ")");
+    };
+
+    JSON.deep_wipe = function (ptr,obj) {
+        if(typeof obj === "object") {
+            for(var k in obj) {
+                if(typeof obj[k] === "object" && typeof obj[k]._nativeRendition === "function" && obj[k].valueOf()==ptr) {
+                    obj[k] = undefined;
+                } else {
+                    JSON.deep_wipe(ptr,obj[k]);
+                }
+            }
+        }
     };
 
 }());

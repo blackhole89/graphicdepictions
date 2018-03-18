@@ -68,6 +68,41 @@ Handle<Value> ValueOfCallback(const Arguments &args)
     return Integer::New(ptr);
 }
 
+/* (de)serialisation of native objects */
+Handle<Value> NativeRenditionCallback(const Arguments &args)
+{
+    Handle<External> he = Handle<External>::Cast(args.Holder()->GetInternalField(0));
+    int type = args.Holder()->GetInternalField(1)->Int32Value(); //<++>
+
+    char buf[128];
+    if(type==NO_NODE) {
+        CSState::CSNode* ptr = (CSState::CSNode*)he->Value();
+        if(s.e->st.nodes2id.size()) sprintf(buf,"_nat_node(%d)",s.e->st.nodes2id[ptr]);
+        else sprintf(buf,"_nat_node(%lld)",(long long)ptr);
+    } else if(type==NO_EDGE) {
+        CSState::CSEdge* ptr = (CSState::CSEdge*)he->Value();
+        if(s.e->st.edges2id.size()) sprintf(buf,"_nat_edge(%d)",s.e->st.edges2id[ptr]);
+        else sprintf(buf,"_nat_edge(%lld)",(long long)ptr);
+    }
+
+    return String::New(buf);
+}
+
+Handle<Value> NatNodeCallback(const Arguments &args)
+{
+    if(args.Length()<1) return v8::Undefined();
+
+    if(s.e->st.id2nodes.size()) return WrapNode( s.e->st.id2nodes[args[0]->Int32Value()] );
+    else return WrapNode( (CSState::CSNode*)args[0]->IntegerValue() );
+}
+Handle<Value> NatEdgeCallback(const Arguments &args)
+{
+    if(args.Length()<1) return v8::Undefined();
+
+    if(s.e->st.id2edges.size()) return WrapEdge( s.e->st.id2edges[args[0]->Int32Value()] );
+    else return WrapEdge( (CSState::CSEdge*)args[0]->IntegerValue() );
+}
+
 Handle<Value> SetColourCallback(const Arguments &args)
 {
     if (args.Length()<3) return v8::Undefined();
@@ -120,6 +155,55 @@ std::string CSEngine::ToJSON(Handle<Value> val)
     return ret;
 }
 
+/* set all wrapped instances of ptr to undefined */
+void CSEngine::DeepWipe(void *ptr)
+{
+    Local<Value> jsonVal = s.e->v8ctx->Global()->Get(String::New("JSON"));
+    Local<Object> json = jsonVal->ToObject();
+    Local<Value> deepWipeVal = json->Get(String::New("deep_wipe"));
+    Local<Function> deepWipe = Local<Function>::Cast(deepWipeVal);
+
+    HandleScope scope;
+    Local<Integer> p = Integer::New((long long)ptr);
+
+    /* wipe global context */
+    Handle<Array> props = v8ctx->Global()->GetPropertyNames();
+    for(int i=0;i<props->Length();++i) {
+        Local<Value> pname = props->Get(i);
+        Local<Value> pvalue = v8ctx->Global()->Get(pname);
+
+        Local<Value> args[2] = {p,pvalue};
+        deepWipe->Call(json, 2, args);
+    }
+
+    /* wipe all attribute holders */
+    for(auto &n: st.nodes) {
+        Local<Value> args[2] = {p,WrapNode(n)};
+        deepWipe->Call(json, 2, args);
+    }
+    for(auto &e: st.edges) {
+        Local<Value> args[2] = {p,WrapEdge(e)};
+        deepWipe->Call(json, 2, args);
+    }
+
+}
+
+Handle<Array> NodeEnum(const AccessorInfo &info)
+{
+    HandleScope scope;
+    Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
+    CSState::CSNode *n = (CSState::CSNode*)field->Value();
+
+    Handle<Array> a = Array::New(n->a.size());
+
+    int i=0;
+    for(auto &&[k,v] : n->a) {
+        a->Set(i++, String::New(k.c_str()));
+    }
+
+    return scope.Close(a);
+}
+
 Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
 {
     Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
@@ -139,6 +223,8 @@ Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
         return FunctionTemplate::New(SetColourCallback)->GetFunction();
     } else if(dfield=="valueOf") {
         return FunctionTemplate::New(ValueOfCallback)->GetFunction();
+    } else if(dfield=="_nativeRendition") {
+        return FunctionTemplate::New(NativeRenditionCallback)->GetFunction();
     } else if(dfield=="selected") {
         return Boolean::New(n->selected);
     } else if(n->a.count(dfield)) {
@@ -183,6 +269,22 @@ Handle<Value> NodeSet(Local<String> name, Local<Value> value, const AccessorInfo
 
 Handle<Value> EdgeForeachCallback(const Arguments &args);
 
+Handle<Array> EdgeEnum(const AccessorInfo &info)
+{
+    HandleScope scope;
+    Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
+    CSState::CSEdge *e = (CSState::CSEdge*)field->Value();
+
+    Handle<Array> a = Array::New(e->a.size());
+
+    int i=0;
+    for(auto &&[k,v] : e->a) {
+        a->Set(i++, String::New(k.c_str()));
+    }
+
+    return scope.Close(a);
+}
+
 Handle<Value> EdgeGet(Local<String> name, const AccessorInfo& info)
 {
     Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
@@ -194,6 +296,8 @@ Handle<Value> EdgeGet(Local<String> name, const AccessorInfo& info)
         return FunctionTemplate::New(EdgeForeachCallback)->GetFunction();
     } else if(dfield=="valueOf") {
         return FunctionTemplate::New(ValueOfCallback)->GetFunction();
+    } else if(dfield=="__nativeRendition") {
+        return FunctionTemplate::New(NativeRenditionCallback)->GetFunction();
     } else if(dfield=="n1") {
         return WrapNode(e->n1);
     } else if(dfield=="n2") {
@@ -483,6 +587,8 @@ void CSEngine::Init(CSMainWindow *wndw)
 
     /* v8 engine */
     Handle<ObjectTemplate> global = ObjectTemplate::New();
+    global->Set(String::New("_nat_node"), FunctionTemplate::New(NatNodeCallback));
+    global->Set(String::New("_nat_edge"), FunctionTemplate::New(NatEdgeCallback));
     global->Set(String::New("rand"), FunctionTemplate::New(RandomCallback));
     global->Set(String::New("countbits"), FunctionTemplate::New(CountbitsCallback));
     global->Set(String::New("addNode"), FunctionTemplate::New(AddNodeCallback));
@@ -500,7 +606,7 @@ void CSEngine::Init(CSMainWindow *wndw)
     HandleScope hslocal;
     Handle<ObjectTemplate> h = ObjectTemplate::New();
     h->SetInternalFieldCount(2);
-    h->SetNamedPropertyHandler(NodeGet,NodeSet);
+    h->SetNamedPropertyHandler(NodeGet,NodeSet,0,0,NodeEnum);
     node_templ = Persistent<ObjectTemplate>::New(hslocal.Close(h));
 
     HandleScope hslocal2;
@@ -513,7 +619,7 @@ void CSEngine::Init(CSMainWindow *wndw)
     HandleScope hslocal3;
     h = ObjectTemplate::New();
     h->SetInternalFieldCount(2);
-    h->SetNamedPropertyHandler(EdgeGet,EdgeSet);
+    h->SetNamedPropertyHandler(EdgeGet,EdgeSet,0,0,EdgeEnum);
     edge_templ = Persistent<ObjectTemplate>::New(hslocal3.Close(h));
 
     HandleScope hslocal4;

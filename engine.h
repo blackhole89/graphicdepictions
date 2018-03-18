@@ -47,6 +47,11 @@ public:
     struct CSAttr {
         v8::Persistent<v8::Value> j_data;
 
+        /* deferred load */
+        std::string st;
+        static CSAttr FromStringDeferred(char *buf);
+        void Compile();
+
         CSAttr(char *);
         CSAttr();
         ~CSAttr();
@@ -83,6 +88,12 @@ public:
 
     std::set<CSNode*> nodes;
     std::set<CSEdge*> edges;
+
+    /* for (de)serialisation */
+    std::map<CSNode*, int> nodes2id;
+    std::map<int, CSNode*> id2nodes;
+    std::map<CSEdge*, int> edges2id;
+    std::map<int, CSEdge*> id2edges;
 
     int nselected;
 
@@ -200,6 +211,8 @@ public:
 
     v8::Local<v8::Value> FromJSON(char *json);
     std::string ToJSON(v8::Handle<v8::Value>);
+
+    void DeepWipe(void *ptr);
 
 	bool CompileScript(const char *code,const char *name, v8::Handle<v8::Script> &out);
 	bool RunScriptForNode(CSState::CSNode *n, v8::Handle<v8::Script> script);

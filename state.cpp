@@ -24,6 +24,19 @@
 #else
 #endif
 
+/* deferred load */
+CSState::CSAttr CSState::CSAttr::FromStringDeferred(char *j)
+{
+    CSAttr ret;
+    ret.st=j;
+    return ret;
+}
+void CSState::CSAttr::Compile()
+{
+    j_data = v8::Persistent<v8::Value>::New(s.e->FromJSON((char*)st.c_str()));
+    st="";
+}
+
 CSState::CSAttr::CSAttr(char *j)
 {
     j_data = v8::Persistent<v8::Value>::New(s.e->FromJSON(j));
@@ -75,6 +88,9 @@ CSState::CSNode *CSState::AddNode(float x, float y, float z)
 
 void CSState::DelNode(CSNode *n)
 {
+    /* remove references inside JS */
+    s.e->DeepWipe(n);
+
     /* remove edges touching it */
     for(auto i=edges.begin(); i!=edges.end(); ) {
         if( (*i)->n1 == n || (*i)->n2 == n) {
@@ -90,7 +106,8 @@ void CSState::DelNode(CSNode *n)
         selgroups[i].erase(n);
     }
 
-    delete n;}
+    delete n;
+}
 
 void CSState::DelEdge(CSEdge *e)
 {
@@ -510,17 +527,18 @@ void CSState::Load()
     if(dims==3) s.e->use_3d=true;
     else s.e->use_3d=false;
 
+    int id=0,ide=0;
+
     int nnodes;
     fscanf(fl," %d ",&nnodes);
 
-    std::map<int, CSNode*> id2nodes;
     for(int i=0;i<nnodes;++i) {
         int sel,nattrs;
         float x,y,z;
 
         fscanf(fl," %d %f %f %f %d ", &sel, &x, &y, &z, &nattrs);
         CSNode *n = AddNode(x,y,z);
-        id2nodes[i]=n;
+        id2nodes[id++] = n;
         n->selected = sel;
         if(sel) ++nselected;
 
@@ -531,12 +549,12 @@ void CSState::Load()
                 fscanf(fl,"%d,",&len);
                 char *json = new char[len+1];
                 fread(json,1,len,fl); json[len]=0;
-                n->a[buf]=CSAttr::FromString(json);
+                n->a[buf]=CSAttr::FromStringDeferred(json);
                 delete json;
             } else {
                 // old-style data
                 fscanf(fl,"%[^\n] ",buf2);
-                n->a[buf]=CSAttr::FromString(buf2);
+                n->a[buf]=CSAttr::FromStringDeferred(buf2);
             }
         }
     }
@@ -547,6 +565,7 @@ void CSState::Load()
         int n1,n2;
         fscanf(fl," %d %d ",&n1,&n2);
         CSEdge *e=AddEdge(id2nodes[n1],id2nodes[n2]);
+        id2edges[ide++] = e;
 
         if(version>=1) {
             /* load edge attributes, too */
@@ -559,12 +578,12 @@ void CSState::Load()
                     fscanf(fl,"%d,",&len);
                     char *json = new char[len+1];
                     fread(json,1,len,fl); json[len]=0;
-                    e->a[buf]=CSAttr::FromString(json);
+                    e->a[buf]=CSAttr::FromStringDeferred(json);
                     delete json;
                 } else {
                     // old-style data
                     fscanf(fl,"%[^\n] ",buf2);
-                    e->a[buf]=CSAttr::FromString(buf2);
+                    e->a[buf]=CSAttr::FromStringDeferred(buf2);
                 }
             }
         }
@@ -581,6 +600,19 @@ void CSState::Load()
             selgroups[i].insert(id2nodes[id]);
         }
     }
+
+    /* now that we know the id->node map, compile all attributes */
+    for(auto &n : nodes) {
+        for(auto &&[k,v] : n->a) {
+            v.Compile();
+        }
+    }
+    for(auto &e : edges) {
+        for(auto &&[k,v] : e->a) {
+            v.Compile();
+        }
+    }
+
 
     int nscripts=0;
     fscanf(fl," %d ",&nscripts);
@@ -600,6 +632,9 @@ void CSState::Load()
         scripts.back().code = bufcode;    }
 
     fclose(fl);
+
+    id2nodes.clear();
+    id2edges.clear();
 }
 
 void CSState::SaveAs()
@@ -631,10 +666,12 @@ void CSState::Save()
 
     fprintf(fl,"%d\n",nodes.size());
 
-    std::map<CSNode*, int> nodes2id; int id=0;
+    int id=0, ide=0;
     for(auto i=nodes.begin(); i!=nodes.end(); ++i) {
         nodes2id[*i]=id++;
+    }
 
+    for(auto i=nodes.begin(); i!=nodes.end(); ++i) {
         fprintf(fl,"%d %.8f %.8f %.8f %d\n",(*i)->selected,(*i)->pos[0],(*i)->pos[1],(*i)->pos[2],(*i)->a.size());
         for(auto j=(*i)->a.begin(); j!=(*i)->a.end(); ++j) {
             fprintf(fl,"\"%s\"=",j->first.c_str());
@@ -645,6 +682,9 @@ void CSState::Save()
     }
 
     fprintf(fl,"%d\n",edges.size());
+    for(auto i=edges.begin(); i!=edges.end(); ++i) {
+        edges2id[*i]=ide++;
+    }
     for(auto i=edges.begin(); i!=edges.end(); ++i) {
         fprintf(fl,"%d %d ",nodes2id[(*i)->n1], nodes2id[(*i)->n2]);
         fprintf(fl,"%d",(*i)->a.size());
@@ -673,4 +713,7 @@ void CSState::Save()
         fprintf(fl,"\n");    }
 
     fclose(fl);
+
+    nodes2id.clear();
+    edges2id.clear();
 }
