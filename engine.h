@@ -97,6 +97,9 @@ public:
 
     int nselected;
 
+    /* script state */
+    v8::Persistent<v8::Context> v8ctx;
+
     std::vector<CSScript > scripts;
 
     #define NSELGROUPS 10
@@ -163,8 +166,7 @@ public:
     } action;
 
     v8::HandleScope v8hs;
-    v8::Persistent<v8::Context> v8ctx;
-    v8::Persistent<v8::ObjectTemplate> node_templ, set_templ, edge_templ, edge_set_templ;
+    v8::Persistent<v8::ObjectTemplate> global, node_templ, set_templ, edge_templ, edge_set_templ;
 
     std::vector<CSScript > scripts;
     char err_buf[4096];
@@ -220,10 +222,11 @@ public:
 
     void DeepWipe(void *ptr);
 
-	bool CompileScript(const char *code,const char *name, v8::Handle<v8::Script> &out);
-	bool RunScriptForNode(CSState::CSNode *n, v8::Handle<v8::Script> script);
-	bool RunScript(v8::Handle<v8::Script> script);
-    std::string RunScriptGetValue(v8::Handle<v8::Script> script);
+//	bool CompileScript(const char *code,const char *name, v8::Handle<v8::Script> &out);
+	bool RunScriptForNode(CSState::CSNode *n, const char *code, const char *name);
+	bool RunScriptForNodes(std::set<CSState::CSNode *> ns, const char *code, const char *name);
+	bool RunScript(const char *code, const char *name);
+    std::string EvalScript(const char *code, const char *name);
 
 	/* actions; eventually should pull everything out here */
 	void AcEdge(float x, float y);

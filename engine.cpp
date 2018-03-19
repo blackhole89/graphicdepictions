@@ -123,7 +123,7 @@ Handle<Value> SetColourCallback(const Arguments &args)
 Local<Value> CSEngine::FromJSON(char *j)
 {
     HandleScope scope;
-    Handle<Value> jsonVal = s.e->v8ctx->Global()->Get(String::New("JSON"));
+    Handle<Value> jsonVal = s.e->st.v8ctx->Global()->Get(String::New("JSON"));
     Handle<Object> json = jsonVal->ToObject();
     Handle<Value> parseVal = json->Get(String::New("strong_parse"));
     Handle<Function> parse = Handle<Function>::Cast(parseVal); 
@@ -140,7 +140,7 @@ Local<Value> CSEngine::FromJSON(char *j)
 std::string CSEngine::ToJSON(Handle<Value> val)
 {
     HandleScope scope;
-    Handle<Value> jsonVal = s.e->v8ctx->Global()->Get(String::New("JSON"));
+    Handle<Value> jsonVal = s.e->st.v8ctx->Global()->Get(String::New("JSON"));
     Handle<Object> json = jsonVal->ToObject();
     Handle<Value> stringifyVal = json->Get(String::New("strong_stringify"));
     Handle<Function> stringify = Handle<Function>::Cast(stringifyVal);
@@ -158,7 +158,7 @@ std::string CSEngine::ToJSON(Handle<Value> val)
 /* set all wrapped instances of ptr to undefined */
 void CSEngine::DeepWipe(void *ptr)
 {
-    Local<Value> jsonVal = s.e->v8ctx->Global()->Get(String::New("JSON"));
+    Local<Value> jsonVal = s.e->st.v8ctx->Global()->Get(String::New("JSON"));
     Local<Object> json = jsonVal->ToObject();
     Local<Value> deepWipeVal = json->Get(String::New("deep_wipe"));
     Local<Function> deepWipe = Local<Function>::Cast(deepWipeVal);
@@ -167,14 +167,16 @@ void CSEngine::DeepWipe(void *ptr)
     Local<Integer> p = Integer::New((long long)ptr);
 
     /* wipe global context */
-    Handle<Array> props = v8ctx->Global()->GetPropertyNames();
+/*    Handle<Array> props = st.v8ctx->Global()->GetPropertyNames();
     for(int i=0;i<props->Length();++i) {
         Local<Value> pname = props->Get(i);
-        Local<Value> pvalue = v8ctx->Global()->Get(pname);
+        Local<Value> pvalue = st.v8ctx->Global()->Get(pname);
 
         Local<Value> args[2] = {p,pvalue};
         deepWipe->Call(json, 2, args);
-    }
+    }*/
+    Local<Value> args[2] = {p,st.v8ctx->Global()};
+    deepWipe->Call(json, 2, args);
 
     /* wipe all attribute holders */
     for(auto &n: st.nodes) {
@@ -394,9 +396,21 @@ Handle<Value> AddEdgeCallback(const Arguments &args)
 
 Handle<Value> DelEdgeCallback(const Arguments &args)
 {
-    if (args.Length()<2) return v8::Undefined();
+    if (args.Length()<1) return v8::Undefined();
 
     if(!args[0]->IsObject()) return v8::Undefined();
+    
+    if (args.Length()==1) {
+       /* delEdge(E) */ 
+        Handle<External> he1 = Handle<External>::Cast(Handle<Object>::Cast(args[0])->GetInternalField(0));
+        CSState::CSEdge *e = (CSState::CSEdge*)he1->Value();
+    
+        s.e->st.DelEdge(e);
+
+        return v8::Undefined();
+    }
+
+    /* delEdge(N,M) */
     if(!args[1]->IsObject()) return v8::Undefined();
 
     Handle<External> hn1 = Handle<External>::Cast(Handle<Object>::Cast(args[0])->GetInternalField(0));
@@ -525,7 +539,7 @@ Handle<Value> ForeachCallback(const Arguments &args)
         Local<Object> nwrapped = WrapNode(*i);
         Local<Value> val[]= { nwrapped };
 
-        fn->Call(s.e->v8ctx->Global(), 1, val);
+        fn->Call(s.e->st.v8ctx->Global(), 1, val);
     }
 
     return v8::Undefined();
@@ -548,7 +562,7 @@ Handle<Value> EdgeSetForeachCallback(const Arguments &args)
         Local<Object> ewrapped = WrapEdge(*i);
         Local<Value> val[]= { ewrapped };
 
-        fn->Call(s.e->v8ctx->Global(), 1, val);
+        fn->Call(s.e->st.v8ctx->Global(), 1, val);
     }
 
     return v8::Undefined();
@@ -568,12 +582,12 @@ Handle<Value> EdgeForeachCallback(const Arguments &args)
     Local<Object> n1wrapped = WrapNode(e->n1);
     Local<Value> val1[]= { n1wrapped };
 
-    fn->Call(s.e->v8ctx->Global(), 1, val1);
+    fn->Call(s.e->st.v8ctx->Global(), 1, val1);
 
     Local<Object> n2wrapped = WrapNode(e->n2);
     Local<Value> val2[]= { n2wrapped };
 
-    fn->Call(s.e->v8ctx->Global(), 1, val2);
+    fn->Call(s.e->st.v8ctx->Global(), 1, val2);
 
     return v8::Undefined();
 }
@@ -598,32 +612,35 @@ void CSEngine::Init(CSMainWindow *wndw)
 	df1=14000000;
 	df2=14000000;
 
-	st.Clear();
-
-	/* scripts */
-	LoadScripts();
-
 	/* script editor defaults */
 	editor_index=-1;
     editor_local=false;
 
     /* v8 engine */
-    Handle<ObjectTemplate> global = ObjectTemplate::New();
-    global->Set(String::New("_nat_node"), FunctionTemplate::New(NatNodeCallback));
-    global->Set(String::New("_nat_edge"), FunctionTemplate::New(NatEdgeCallback));
-    global->Set(String::New("rand"), FunctionTemplate::New(RandomCallback));
-    global->Set(String::New("countbits"), FunctionTemplate::New(CountbitsCallback));
-    global->Set(String::New("addNode"), FunctionTemplate::New(AddNodeCallback));
-    global->Set(String::New("addEdge"), FunctionTemplate::New(AddEdgeCallback));
-    global->Set(String::New("delEdge"), FunctionTemplate::New(DelEdgeCallback));
-    global->Set(String::New("getEdge"), FunctionTemplate::New(GetEdgeCallback));
-    global->Set(String::New("gamma"), FunctionTemplate::New(GammaCallback));
-    global->Set(String::New("delta"), FunctionTemplate::New(DeltaCallback));
-    global->Set(String::New("nodes"), FunctionTemplate::New(NodesCallback));
-    global->Set(String::New("edges"), FunctionTemplate::New(EdgesCallback));
+    global = Persistent<ObjectTemplate>::New(ObjectTemplate::New());
+    PropertyAttribute flags = (PropertyAttribute)(ReadOnly|DontDelete);
+    PropertyAttribute flags2 = (PropertyAttribute)(flags|DontEnum);
+    global->Set(String::New("_nat_node"), FunctionTemplate::New(NatNodeCallback), flags2);
+    global->Set(String::New("_nat_edge"), FunctionTemplate::New(NatEdgeCallback), flags2);
+    global->Set(String::New("rand"), FunctionTemplate::New(RandomCallback), flags);
+    global->Set(String::New("countbits"), FunctionTemplate::New(CountbitsCallback), flags);
+    global->Set(String::New("addNode"), FunctionTemplate::New(AddNodeCallback), flags);
+    global->Set(String::New("addEdge"), FunctionTemplate::New(AddEdgeCallback), flags);
+    global->Set(String::New("delEdge"), FunctionTemplate::New(DelEdgeCallback), flags);
+    global->Set(String::New("getEdge"), FunctionTemplate::New(GetEdgeCallback), flags);
+    global->Set(String::New("gamma"), FunctionTemplate::New(GammaCallback), flags);
+    global->Set(String::New("delta"), FunctionTemplate::New(DeltaCallback), flags);
+    global->Set(String::New("nodes"), FunctionTemplate::New(NodesCallback), flags);
+    global->Set(String::New("edges"), FunctionTemplate::New(EdgesCallback), flags);
 
-    v8ctx = Context::New(NULL, global);
-    v8ctx->Enter();
+    /* global scripts; need to enter a context to compile */
+    st.v8ctx = v8::Context::New(NULL, global);
+    st.v8ctx->Enter();
+
+    st.Clear();
+
+	/* scripts */
+	LoadScripts();
 
     HandleScope hslocal;
     Handle<ObjectTemplate> h = ObjectTemplate::New();
@@ -651,16 +668,12 @@ void CSEngine::Init(CSMainWindow *wndw)
     h->Set(String::New("size"), FunctionTemplate::New(EdgeSetSizeCallback));
     edge_set_templ = Persistent<ObjectTemplate>::New(hslocal4.Close(h));
 
-    /* global scripts */
     char buf[10240];
     FILE *fl=fopen("serialise.js","r");
     if(!fl) return;
     int len = fread(buf,1,10240,fl);
     buf[len]=0;
-    HandleScope hslocal5;
-    Handle<Script> s;
-    CompileScript(buf,"serialise.js",s);
-    RunScript(s);
+    EvalScript(buf,"serialise.js");
     fclose(fl);
 }
 
@@ -695,62 +708,134 @@ void CSEngine::SaveScript(int id)
     FILE *fl=fopen(buffn, "w");
     fprintf(fl,"// gd %s script %s\n", scripts[id].onNodes?"node":"graph", scripts[id].name.c_str());
     fprintf(fl,"%s",scripts[id].code.c_str());
-    fclose(fl);}
+    fclose(fl);
+}
 
-bool CSEngine::CompileScript(const char *code, const char* name, Handle<Script> &out)
+bool CSEngine::RunScriptForNode(CSState::CSNode *n, const char *code, const char *name)
+{
+    std::string wcode = std::string("(function (N) { ") + code + "\n})";
+
+    HandleScope hslocal;
+    Local<Value> nwrapped = WrapNode(n);
+
+    TryCatch try_catch;
+
+    Handle<Script> out;
+    out = Script::Compile(String::New(wcode.c_str()),String::New(name));
+    if(try_catch.HasCaught()) {
+        String::Utf8Value error(try_catch.StackTrace());
+        if(err_buf[0]) {
+            err_buf[strlen(err_buf)+1]=0;
+            err_buf[strlen(err_buf)]='\n';
+        }
+        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
+        return false;
+    }
+
+    Handle<Function> f = Handle<Function>::Cast(out->Run());
+    f->Call(s.e->st.v8ctx->Global(), 1, &nwrapped);
+
+    if(try_catch.HasCaught()) {
+        String::Utf8Value error(try_catch.StackTrace());
+        if(err_buf[0]) {
+            err_buf[strlen(err_buf)+1]=0;
+            err_buf[strlen(err_buf)]='\n';
+        }
+        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
+        return false;
+    }
+    return true;
+}
+
+bool CSEngine::RunScriptForNodes(std::set<CSState::CSNode *> ns, const char *code, const char *name)
+{
+    std::string wcode = std::string("(function (N) { ") + code + "\n})";
+
+    HandleScope hslocal;
+
+    TryCatch try_catch;
+
+    Handle<Script> out;
+    out = Script::Compile(String::New(wcode.c_str()),String::New(name));
+    if(try_catch.HasCaught()) {
+        String::Utf8Value error(try_catch.StackTrace());
+        if(err_buf[0]) {
+            err_buf[strlen(err_buf)+1]=0;
+            err_buf[strlen(err_buf)]='\n';
+        }
+        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
+        return false;
+    }
+
+    Handle<Function> f = Handle<Function>::Cast(out->Run());
+
+    for(auto &n: ns) {
+        if(!n->selected) continue;
+
+        Local<Value> nwrapped = WrapNode(n);
+        f->Call(s.e->st.v8ctx->Global(), 1, &nwrapped);
+
+        if(try_catch.HasCaught()) {
+            String::Utf8Value error(try_catch.StackTrace());
+            if(err_buf[0]) {
+                err_buf[strlen(err_buf)+1]=0;
+                err_buf[strlen(err_buf)]='\n';
+            }
+            strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CSEngine::RunScript(const char *code, const char *name)
+{
+    std::string wcode = std::string("(function () { ") + code + "\n})";
+
+    HandleScope hslocal;
+
+    TryCatch try_catch;
+
+    Handle<Script> out;
+    out = Script::Compile(String::New(wcode.c_str()),String::New(name));
+    if(try_catch.HasCaught()) {
+        String::Utf8Value error(try_catch.StackTrace());
+        if(err_buf[0]) {
+            err_buf[strlen(err_buf)+1]=0;
+            err_buf[strlen(err_buf)]='\n';
+        }
+        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
+        return false;
+    }
+
+    Handle<Function> f = Handle<Function>::Cast(out->Run());
+    f->Call(s.e->st.v8ctx->Global(), 0, NULL);
+
+    if(try_catch.HasCaught()) {
+        String::Utf8Value error(try_catch.StackTrace());
+        if(err_buf[0]) {
+            err_buf[strlen(err_buf)+1]=0;
+            err_buf[strlen(err_buf)]='\n';
+        }
+        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
+        return false;
+    }
+    return true;
+}
+
+std::string CSEngine::EvalScript(const char* code, const char *name)
 {
     TryCatch try_catch;
+    Local<Script> out;
     out = Script::Compile(String::New(code),String::New(name));
     if(try_catch.HasCaught()) {
         String::Utf8Value error(try_catch.StackTrace());
-        if(err_buf[0]) {
-            err_buf[strlen(err_buf)+1]=0;
-            err_buf[strlen(err_buf)]='\n';
-        }
-        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
-        return false;
+        std::string errstr = std::string("[error] ") + *error;
+        return errstr;
     }
-    return true;}
 
-bool CSEngine::RunScriptForNode(CSState::CSNode *n, Handle<Script> script)
-{
-    HandleScope hslocal;
-    auto nwrapped = WrapNode(n);
-    v8ctx->Global()->Set(String::New("N"), hslocal.Close(nwrapped));
-    TryCatch try_catch;
-    script->Run();
-    if(try_catch.HasCaught()) {
-        String::Utf8Value error(try_catch.StackTrace());
-        if(err_buf[0]) {
-            err_buf[strlen(err_buf)+1]=0;
-            err_buf[strlen(err_buf)]='\n';
-        }
-        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
-        return false;
-    }
-    return true;
-}
-
-bool CSEngine::RunScript(Handle<Script> script)
-{
-    TryCatch try_catch;
-    script->Run();
-    if(try_catch.HasCaught()) {
-        String::Utf8Value error(try_catch.StackTrace());
-        if(err_buf[0]) {
-            err_buf[strlen(err_buf)+1]=0;
-            err_buf[strlen(err_buf)]='\n';
-        }
-        strncpy(err_buf+strlen(err_buf),*error,4096-strlen(err_buf));
-        return false;
-    }
-    return true;
-}
-
-std::string CSEngine::RunScriptGetValue(Handle<Script> script)
-{
-    TryCatch try_catch;
-    Local<Value> val = script->Run();
+    Local<Value> val = out->Run();
     if(try_catch.HasCaught()) {
         String::Utf8Value error(try_catch.StackTrace());
         std::string errstr = std::string("[error] ") + *error;
@@ -929,16 +1014,12 @@ bool CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
     if(!s->onNodes) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.55,0.1,0.2,1.0));
     else ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2,0.5,0.2,1.0));
     if(ImGui::Button("Run")) {
-        Handle<Script> sc;
-        if(CompileScript(s->code.c_str(), s->name.c_str(), sc)) {
-            if(s->onNodes) {
-                for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
-                    if( (*i)->selected ) if(!RunScriptForNode(*i,sc)) break;
-                }
-            } else {
-                RunScript(sc);
-            }
-        }    }
+        if(s->onNodes) {
+            RunScriptForNodes(st.nodes, s->code.c_str(), s->name.c_str());
+        } else {
+            RunScript(s->code.c_str(), s->name.c_str());
+        }
+     }
     ImGui::PopStyleColor();
     if(!(local^reassign)) ImGui::PopStyleColor();
     ImGui::NextColumn();
@@ -1426,12 +1507,7 @@ void CSEngine::RunLogic()
         if(ImGui::BeginMenu("Execute again")) {
             for(auto j=recent.begin(); j!=recent.end(); ++j) {
                 if(ImGui::MenuItem( (j->substr(0,8)+(j->length()>8?"...":"")).c_str() )) {
-                    Handle<Script> sc;
-                    if(CompileScript(j->c_str(),"temp",sc)) {
-                        for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
-                            if( (*i)->selected ) if(!RunScriptForNode(*i,sc)) break;
-                        }
-                    }
+                    RunScriptForNodes(st.nodes, j->c_str(), "[temp]");
                 }
             }
             ImGui::EndMenu();
@@ -1559,7 +1635,7 @@ void CSEngine::RunLogic()
     ImGui::Columns(2,"##scolumns");
 
     static bool show_builtins = false;
-    RenderObjectProps(v8ctx->Global(),show_builtins);
+    RenderObjectProps(st.v8ctx->Global(),show_builtins);
 
     ImGui::Columns(1);
     ImGui::EndChild();
@@ -1780,11 +1856,13 @@ void CSEngine::RunLogic()
         ImGui::Separator();
 
         // Command-line
-        if (ImGui::InputTextEx("##input", term_buf, IM_ARRAYSIZE(term_buf), input_size, ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CtrlEnterForNewLine|ImGuiInputTextFlags_CallbackEscape|ImGuiInputTextFlags_Multiline|ImGuiInputTextFlags_NoHorizontalScroll, 
+        if (ImGui::InputTextEx("##input", term_buf, IM_ARRAYSIZE(term_buf), input_size, ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CtrlEnterForNewLine|ImGuiInputTextFlags_CallbackEscape|ImGuiInputTextFlags_CallbackHistory|ImGuiInputTextFlags_NoHorizontalScroll, 
 [] (ImGuiTextEditCallbackData* data) -> int {
     switch(data->EventFlag) {
     case ImGuiInputTextFlags_CallbackEscape:
         s.e->show_terminal=0;
+        break;
+    case ImGuiInputTextFlags_CallbackHistory:
         break;
     }
     return 0;
@@ -1794,13 +1872,8 @@ void CSEngine::RunLogic()
             while (input_end > term_buf && input_end[-1] == ' ') input_end--; *input_end = 0;
             if (term_buf[0]) {
                 term_backlog.push_back(term_buf);
-                Handle<Script> sc;
-                if(CompileScript(term_buf,editor_tbuf,sc)) {
-                    std::string res = RunScriptGetValue(sc);
-                    term_results.push_back(res);
-                } else {
-                    term_results.push_back("[error] Failed to compile.");
-                }
+                std::string res = EvalScript(term_buf,"[terminal input]");
+                term_results.push_back(res);
             }
 
             strcpy(term_buf, "");
@@ -1827,11 +1900,7 @@ void CSEngine::RunLogic()
         ImGui::InputTextMultiline("##source",buf,4096,ImVec2(-1.0f, -1.0f), ImGuiInputTextFlags_AllowTabInput);
         ImGui::EndChild();
         if(ImGui::Button("Compile and Run")) {
-            Handle<Script> sc;
-            if(CompileScript(buf,"temp",sc)) {
-                for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
-                    if( (*i)->selected ) if(!RunScriptForNode(*i,sc)) break;
-                }
+            if(RunScriptForNodes(st.nodes,buf,"temp")) {
                 // put into recent script deque
                 std::string s(buf);
                 recent.push_front(s);
@@ -1877,15 +1946,10 @@ void CSEngine::RunLogic()
         ImGui::EndChild();
         ImGui::Separator();
         if(ImGui::Button("Run")) {
-            Handle<Script> sc;
-            if(CompileScript(editor_buf,editor_tbuf,sc)) {
-                if(editor_is_pernode) {
-                    for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
-                        if( (*i)->selected ) if(!RunScriptForNode(*i,sc)) break;
-                    }
-                } else {
-                    RunScript(sc);
-                }
+            if(editor_is_pernode) {
+                RunScriptForNodes(st.nodes, editor_buf,editor_tbuf);
+            } else {
+                RunScript(editor_buf, editor_tbuf);
             }
             rs_every_node=false;
         }
@@ -1901,15 +1965,10 @@ void CSEngine::RunLogic()
                 st.scripts[editor_index].name = editor_tbuf;
                 st.scripts[editor_index].onNodes = editor_is_pernode;
             }
-            Handle<Script> sc;
-            if(CompileScript(editor_buf,editor_tbuf,sc)) {
-                if(editor_is_pernode) {
-                    for(auto i=st.nodes.begin(); i!=st.nodes.end(); ++i) {
-                        if( (*i)->selected ) if(!RunScriptForNode(*i,sc)) break;
-                    }
-                } else {
-                    RunScript(sc);
-                }
+            if(editor_is_pernode) {
+                RunScriptForNodes(st.nodes, editor_buf,editor_tbuf);
+            } else {
+                RunScript(editor_buf, editor_tbuf);
             }
             rs_every_node=false;
         }

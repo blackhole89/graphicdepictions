@@ -33,7 +33,7 @@ function shufflebigcycles(a) {
 
 // invert permutation
 function invert(a) {
-	r = a.slice();
+	var r = a.slice();
 	for(var i=0;i<a.length;++i) {
 		r[a[i]]=i;
 	}

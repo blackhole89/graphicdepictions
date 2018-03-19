@@ -8148,7 +8148,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
     if (is_multiline)
     {
         //[blackhole89]
-        //Dummy(text_size + ImVec2(0.0f, g.FontSize)); // Always add room to scroll an extra line
+        Dummy(text_size + ImVec2(0.0f, g.FontSize)); // Always add room to scroll an extra line
         EndChildFrame();
         EndGroup();
         if (g.ActiveId == id || is_currently_scrolling) // Set LastItemId which was lost by EndChild/EndGroup, so user can use IsItemActive()

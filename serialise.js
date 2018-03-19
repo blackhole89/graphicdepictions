@@ -139,6 +139,8 @@
 // This is not JSON anymore.
 
         case "function":
+            var strep = value.toString();
+            if((/\{\s*\[native code\]\s*\}$/).test(strep)) return;
             return value.toString();
 
 // If the type is "object", we might be dealing with an object or an array or

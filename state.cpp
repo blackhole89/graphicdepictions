@@ -494,7 +494,15 @@ void CSState::Clear()
     }
     last_filename[0]=0;
     scripts.clear();
+
+    /* reset global script context */
+    v8::Handle<v8::Array> props = v8ctx->Global()->GetPropertyNames();
+    for(int i=0;i<props->Length();++i) {
+        v8::Local<v8::String> pname = props->Get(i)->ToString();
+        v8ctx->Global()->Delete(pname);
+    }
 }
+
 
 void CSState::Load()
 {
