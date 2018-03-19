@@ -194,6 +194,7 @@ public:
     bool show_terminal;
     bool force_terminal_focus;
     std::vector<std::string> term_backlog, term_results;
+    int term_backlog_pos;
     char term_buf[4096];
 
     /* return true iff entry was not erased */

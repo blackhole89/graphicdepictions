@@ -132,7 +132,7 @@ Local<Value> CSEngine::FromJSON(char *j)
 
     Handle<Value> ret= parse->Call(json, 1, &input);
 
-    printf("From JSON: %s becomes %s.\n",j,*String::Utf8Value(ret));
+//    printf("From JSON: %s becomes %s.\n",j,*String::Utf8Value(ret));
 
     return scope.Close(ret);
 }
@@ -619,6 +619,8 @@ void CSEngine::Init(CSMainWindow *wndw)
 	/* script editor defaults */
 	editor_index=-1;
     editor_local=false;
+
+    term_backlog_pos=-1;
 
     /* v8 engine */
     global = Persistent<ObjectTemplate>::New(ObjectTemplate::New());
@@ -1798,7 +1800,7 @@ void CSEngine::RunLogic()
         ImGui::Dummy(ImVec2(0,60));
         #define CenteredText(c,t) { ImGui::SetCursorPosX( (ImGui::GetWindowContentRegionWidth()-ImGui::CalcTextSize(t).x)/2 ); ImGui::TextColored(c,t); }
         CenteredText(ImVec4(.7,.7,1,1),"graphic depictions "VERSTRING);
-        CenteredText(ImVec4(1,1,1,1),"© 2016 Matvey Soloviev\n<msoloviev@cs.cornell.edu>");
+        CenteredText(ImVec4(1,1,1,1),"© 2016-2018 Matvey Soloviev\n<msoloviev@cs.cornell.edu>");
         ImGui::Separator();
         ImGui::Text("This program is licensed under the terms\nof the GNU General Public License version 3.\n\nAvailable online under:\nhttp://www.gnu.org/licenses/gpl-3.0.html");
         ImGui::Separator();
@@ -1840,14 +1842,13 @@ void CSEngine::RunLogic()
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
-        for (int i = 0; i < term_backlog.size(); i++) {
-            std::string prefixed = "> "+term_backlog[i];
-            const char* item = prefixed.c_str();
-            ImGui::TextUnformatted(item);
-            item = term_results[i].c_str();
+        for (int i = 0; i < term_results.size(); i++) {
+            const char *item = term_results[i].c_str();
             ImColor col;
-            if (strstr(item, "[error]")) col = ImColor(1.0f,0.4f,0.4f,1.0f);
-            else col = ImColor(0.78f,1.0f,0.58f,1.0f);
+            if (!strncmp(item, "> ",2)) col = ImColor(1.0f,1.0f,1.0f,1.0f);
+            else if (!strncmp(item, "[error]",7)) col = ImColor(1.0f,0.4f,0.4f,1.0f);
+            else if (!strncmp(item, ":",1)) { col = ImColor(0.5f,0.5f,1.0f,1.0f); ++item; }
+            else col = ImColor(0.5f,1.0f,0.5f,1.0f);
             ImGui::PushStyleColor(ImGuiCol_Text, col);
             ImGui::TextUnformatted(item);
             ImGui::PopStyleColor();
@@ -1861,22 +1862,41 @@ void CSEngine::RunLogic()
 
         // Command-line
         if (ImGui::InputTextEx("##input", term_buf, IM_ARRAYSIZE(term_buf), input_size, ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CtrlEnterForNewLine|ImGuiInputTextFlags_CallbackEscape|ImGuiInputTextFlags_CallbackHistory|ImGuiInputTextFlags_NoHorizontalScroll, 
-[] (ImGuiTextEditCallbackData* data) -> int {
-    switch(data->EventFlag) {
-    case ImGuiInputTextFlags_CallbackEscape:
-        s.e->show_terminal=0;
-        break;
-    case ImGuiInputTextFlags_CallbackHistory:
-        break;
-    }
-    return 0;
-},
- (void*)this)) {
+    [] (ImGuiTextEditCallbackData* data) -> int {
+        switch(data->EventFlag) {
+        case ImGuiInputTextFlags_CallbackEscape:
+            s.e->show_terminal=0;
+            break;
+        case ImGuiInputTextFlags_CallbackHistory: {
+            const int prev_backlog_pos = s.e->term_backlog_pos;
+            if (data->EventKey == ImGuiKey_UpArrow) {
+                if (s.e->term_backlog_pos == -1)
+                    s.e->term_backlog_pos = s.e->term_backlog.size() - 1;
+                else if (s.e->term_backlog_pos > 0)
+                    s.e->term_backlog_pos--;
+            } else if (data->EventKey == ImGuiKey_DownArrow) {
+                if (s.e->term_backlog_pos != -1)
+                    if (++s.e->term_backlog_pos >= s.e->term_backlog.size())
+                        s.e->term_backlog_pos = -1;
+            }
+
+            if (prev_backlog_pos != s.e->term_backlog_pos)
+            {
+                data->CursorPos = data->SelectionStart = data->SelectionEnd = data->BufTextLen = (int)snprintf(data->Buf, (size_t)data->BufSize, "%s", (s.e->term_backlog_pos >= 0) ? s.e->term_backlog[s.e->term_backlog_pos].c_str() : "");
+                data->BufDirty = true;
+            }
+
+            break; }
+        }
+        return 0;
+    }, (void*)this)) {
             char* input_end = term_buf+strlen(term_buf);
             while (input_end > term_buf && input_end[-1] == ' ') input_end--; *input_end = 0;
             if (term_buf[0]) {
                 term_backlog.push_back(term_buf);
+                term_backlog_pos=-1;
                 std::string res = EvalScript(term_buf,"[terminal input]");
+                term_results.push_back(std::string("> ")+term_buf);
                 term_results.push_back(res);
             }
 
