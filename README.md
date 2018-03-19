@@ -59,9 +59,9 @@ The camera may be manipulated in a variety of ways.
 
 ### Writing and running scripts
 
-A key feature of graphic depictions is the ability to run JavaScript programs on the graph. To create a script, press the `Add` button in the `Scripts` window, and click on the `New script` entry that is created in the list. A script can either be applied to each selected node (default) or the whole graph (disable the `on nodes` option in the script editor). A few example scripts are included with the distribution, and if you are already familiar with JavaScript, these may be the fastest way to familiarise yourself with the environment. The important basics are the following:
+A key feature of graphic depictions is the ability to run JavaScript programs on the graph. To create a script, press the `Add` button in the **Scripts** window, and click on the `New script` entry that is created in the list. A script can either be applied to each selected node (default) or the whole graph (disable the `on nodes` option in the script editor). A few example scripts are included with the distribution, and if you are already familiar with JavaScript, these may be the fastest way to familiarise yourself with the environment. The important basics are the following:
 
-* When running on nodes, the current node is made available in the global scope as a special object named `N`. This object can store arbitrary integer and floating-point attributes, so for instance the script `N.v=3;` creates an attribute named `v` in every node that is selected when it is run and assigns the integer `3` to it. If the script `N.v = N.v * N.v;` is then run on a subset of those nodes, the nodes it will run on will have their attribute `v` set to `9`.
+* When running on nodes, the current node is made available locally as an object named `N`. This object can store arbitrary data, so for instance the script `N.v=3;` creates an attribute named `v` in every node that is selected when it is run and assigns the integer `3` to it. If the script `N.v = N.v * N.v;` is then run on a subset of those nodes, the nodes it will run on will have their attribute `v` set to `9`.
 * Nodes also have a special boolean attribute `selected` which is true iff the node in question is currently selected.
 * If `N` is a node object, then `gamma(N)` is the array of nodes in the node's neighbourhood, that is, all nodes connected to it, not including itself. This set can be iterated over as follows:
 ```javascript
@@ -117,10 +117,15 @@ delNode(nodes()[0]);
 N = addNode(0,0);   // add node at origin
 N.setColor(1.0,0.0,0.0);    // make it red
 ```
+* In addition, all builtins of the ECMAScript 5 standard, e.g. `Math.sin`, are provided via V8.
 
-By default, scripts are saved with the graph you are editing. (File > Save) You can instead make a script global by right-clicking it in the script list and unchecking `Stored with graph`. You can also quickly enter scripts that will not be saved by right-clicking the graph view and selecting `Execute on selection...`.
+By default, scripts are saved with the graph you are editing. (File > Save) You can instead make a script global by right-clicking it in the script list and unchecking `Stored with graph`. You can also quickly enter scripts that will not be saved by
+* opening the **JavaScript console** with `Tab` (quit with `Esc`) or 
+* right-clicking the graph view and selecting `Execute on selection...`.
 
-The subwindow `Node Apperance` contains a 3x3 matrix of input boxes which can be used to display the current values of vertex attributes next to the vertex in the graph view. For instance, if the previously-mentioned script `N.v=3;` was run on all nodes and `v` is entered into the second input box in the top line of the window, then a `3` will be rendered above every node.
+The **Data** subwindow allows you to inspect all global JavaScript variables and objects. Create them by assigning bare variables in scripts, e.g. `a=5;` (as opposed to `var a=5;`, or in the console.
+
+The **Node Appearance** subwindow contains a 3x3 matrix of input boxes which can be used to display the current values of vertex attributes next to the vertex in the graph view. For instance, if the previously-mentioned script `N.v=3;` was run on all nodes and `v` is entered into the second input box in the top line of the window, then a `3` will be rendered above every node. By right-clicking a field in the Node Appearance window, you can also adjust its display colour.
 
 Licensing
 ---------
