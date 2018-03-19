@@ -153,6 +153,18 @@ Known issues
 * Drawing lots of node labels can be slow on some platforms. Generally, the "separate texture for each glyph" approach my font implementation (`fonts.cpp`) uses seems to be much slower than imgui's font atlas + texture coordinates one; I will eventually switch over to it.
 * In the Windows binary build, TikZ export fails to correctly compute node label colours. This is a complete and utter mystery to me at the moment.
 
+Future plans
+------------
+
+### 0.5
+
+* Make graphs first-class objects, and allow a session/file to contain multiple graphs. (This should come with functions to extract induced subgraphs, merge graphs, find embeddings etc.)
+* Introduce bindings for a linear algebra library such as Armadillo to enable spectral graph theory work.
+
+### ?
+
+* Multiple viewports
+
 Changelog
 ---------
 
