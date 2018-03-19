@@ -221,6 +221,7 @@ public:
     std::string ToJSON(v8::Handle<v8::Value>);
 
     void DeepWipe(void *ptr);
+    void ImportToGlobal(v8::Handle<v8::Object>);
 
 //	bool CompileScript(const char *code,const char *name, v8::Handle<v8::Script> &out);
 	bool RunScriptForNode(CSState::CSNode *n, const char *code, const char *name);

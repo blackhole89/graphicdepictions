@@ -623,6 +623,19 @@ void CSState::Load()
         }
     }
 
+    if(version >= 2) {
+        /* load global context */
+        int len;
+        fscanf(fl," %d ",&len);
+        char *buf = new char[len+1];
+        fread(buf,1,len,fl);
+        buf[len]=0;
+        
+        v8::Local<v8::Object> obj = s.e->FromJSON(buf)->ToObject();
+        s.e->ImportToGlobal(obj);
+
+        delete buf;
+    }
 
     int nscripts=0;
     fscanf(fl," %d ",&nscripts);
@@ -716,14 +729,18 @@ void CSState::Save()
         fprintf(fl,"\n");
     }
 
-    /* TODO: save global vars */
-    /* TODO: wipe global vars when resetting state */
+    /* save global vars */
+    std::string glob = s.e->ToJSON(v8ctx->Global());
+    fprintf(fl,"%d\n",glob.length());
+    fwrite(glob.c_str(),glob.length(),1,fl);
+    fprintf(fl,"\n");
 
     fprintf(fl,"%d\n",scripts.size());
     for(int id=0;id<scripts.size();++id) {
         fprintf(fl,"%d byte %s script %s\n", scripts[id].code.length(),scripts[id].onNodes?"node":"graph", scripts[id].name.c_str());
         fwrite(scripts[id].code.c_str(),scripts[id].code.length(),1,fl);
-        fprintf(fl,"\n");    }
+        fprintf(fl,"\n");    
+    }
 
     fclose(fl);
 

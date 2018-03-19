@@ -295,6 +295,7 @@
         return eval("(" + input + ")");
     };
 
+// Other service functions that really don't belong in JSON.
     JSON.deep_wipe = function (ptr,obj) {
         if(typeof obj === "object") {
             for(var k in obj) {
@@ -304,6 +305,12 @@
                     JSON.deep_wipe(ptr,obj[k]);
                 }
             }
+        }
+    };
+
+    JSON.import_object = function(target,obj) {
+        for(var k in obj) {
+            target[k] = obj[k];
         }
     };
 

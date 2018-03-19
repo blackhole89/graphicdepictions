@@ -138,11 +138,12 @@ Known issues
 Changelog
 ---------
 
-### 0.4 (beta)
+### 0.4 (in development)
 
 * Nodes and edges can now store arbitrary JavaScript data.
 * Likewise, all global variables created by JS get stored with the graph.
 * Global variables can now be inspected in the user interface.
+* Adding a javascript console, accessible with `Tab`.
 
 ### 0.3
 

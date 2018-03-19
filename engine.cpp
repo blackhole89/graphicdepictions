@@ -167,14 +167,6 @@ void CSEngine::DeepWipe(void *ptr)
     Local<Integer> p = Integer::New((long long)ptr);
 
     /* wipe global context */
-/*    Handle<Array> props = st.v8ctx->Global()->GetPropertyNames();
-    for(int i=0;i<props->Length();++i) {
-        Local<Value> pname = props->Get(i);
-        Local<Value> pvalue = st.v8ctx->Global()->Get(pname);
-
-        Local<Value> args[2] = {p,pvalue};
-        deepWipe->Call(json, 2, args);
-    }*/
     Local<Value> args[2] = {p,st.v8ctx->Global()};
     deepWipe->Call(json, 2, args);
 
@@ -187,7 +179,19 @@ void CSEngine::DeepWipe(void *ptr)
         Local<Value> args[2] = {p,WrapEdge(e)};
         deepWipe->Call(json, 2, args);
     }
+}
 
+void CSEngine::ImportToGlobal(Handle<Object> obj)
+{
+    Local<Value> jsonVal = s.e->st.v8ctx->Global()->Get(String::New("JSON"));
+    Local<Object> json = jsonVal->ToObject();
+    Local<Value> importObjectVal = json->Get(String::New("import_object"));
+    Local<Function> importObject = Local<Function>::Cast(importObjectVal);
+
+    HandleScope scope;
+
+    Handle<Value> args[2] = {st.v8ctx->Global(),obj};
+    importObject->Call(json, 2, args);
 }
 
 Handle<Array> NodeEnum(const AccessorInfo &info)
