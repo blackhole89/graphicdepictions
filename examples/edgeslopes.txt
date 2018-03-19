@@ -45,7 +45,7 @@ nodes().forEach(function (N) {
 edges().forEach(function (E) {
 	// center, outlier
 	var C,O;
-	if(gamma(E.n1).size()>gamma(E.n2).size()) {
+	if(gamma(E.n1).length>gamma(E.n2).length) {
 		C = E.n1;
 		O = E.n2;
 	} else {

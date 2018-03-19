@@ -94,8 +94,8 @@ version 1
 N.s = 0;
 N.setColor(0,0,0);
 183 byte node script sandpile fire
-if(N.s>=gamma(N).size()) {
-	N.s -= gamma(N).size();
+if(N.s>=gamma(N).length) {
+	N.s -= gamma(N).length;
 	N.setColor(N.s*0.25,N.s*0.25,N.s*0.25);
 	gamma(N).forEach(function (M) {
 		M.s++;
