@@ -47,17 +47,30 @@ Local<Object> WrapEdge(CSState::CSEdge *e)
 }
 Local<Object> WrapNodeSet(std::set<CSState::CSNode*> *ns)
 {
-    auto swrapped = s.e->set_templ->NewInstance();
-    swrapped->SetInternalField(0, External::New(ns));
-    swrapped->SetInternalField(1, Integer::New(NO_NODESET));
-    return swrapped;
+    HandleScope scope;
+
+    Handle<Array> a = Array::New(ns->size());
+
+    int i=0;
+    for(auto &n : *ns) {
+        a->Set(i++, WrapNode(n));
+    }
+
+    return scope.Close(a);
 }
+
 Local<Object> WrapEdgeSet(std::set<CSState::CSEdge*> *es)
 {
-    auto swrapped = s.e->edge_set_templ->NewInstance();
-    swrapped->SetInternalField(0, External::New(es));
-    swrapped->SetInternalField(1, Integer::New(NO_EDGESET));
-    return swrapped;
+    HandleScope scope;
+
+    Handle<Array> a = Array::New(es->size());
+
+    int i=0;
+    for(auto &e : *es) {
+        a->Set(i++, WrapEdge(e));
+    }
+
+    return scope.Close(a);
 }
 
 Handle<Value> ValueOfCallback(const Arguments &args)
@@ -343,6 +356,35 @@ Handle<Value> RandomCallback(const Arguments &args)
     return v8::Undefined();
 }
 
+Handle<Value> PrintlnCallback(const Arguments &args)
+{
+    if (args.Length()==0 || args.Length()>1) return Undefined();
+    s.e->term_results.push_back(std::string(":")+*String::Utf8Value(args[0]));
+
+    return Undefined();
+}
+
+Handle<Value> PrintCallback(const Arguments &args)
+{
+    if (args.Length()==0 || args.Length()>1) return Undefined();
+
+    if(s.e->term_results.empty()) goto print_callback_start_newline;
+
+    {
+        std::string &bck = s.e->term_results.back();
+    
+        if(bck.empty()) goto print_callback_start_newline;
+        if(bck[0]!=':') goto print_callback_start_newline;
+
+        bck += *String::Utf8Value(args[0]);
+
+        return Undefined();
+    }
+print_callback_start_newline:
+    s.e->term_results.push_back(std::string(":")+*String::Utf8Value(args[0]));    
+    return Undefined();
+}
+
 Handle<Value> CountbitsCallback(const Arguments &args)
 {
     if (args.Length()!=1) return v8::Undefined();
@@ -376,6 +418,20 @@ Handle<Value> AddNodeCallback(const Arguments &args)
     CSState::CSNode *n=s.e->st.AddNode(x,y,z);
 
     return WrapNode(n);
+}
+
+Handle<Value> DelNodeCallback(const Arguments &args)
+{
+    if (args.Length()<1 || args.Length()>1) return v8::Undefined();
+
+    if(!args[0]->IsObject()) return v8::Undefined();
+    
+    Handle<External> hn = Handle<External>::Cast(Handle<Object>::Cast(args[0])->GetInternalField(0));
+    CSState::CSNode *n = (CSState::CSNode*)hn->Value();
+    
+    s.e->st.DelNode(n);
+
+    return v8::Undefined();
 }
 
 Handle<Value> AddEdgeCallback(const Arguments &args)
@@ -474,38 +530,16 @@ Handle<Value> DeltaCallback(const Arguments &args)
 
 Handle<Value> NodesCallback(const Arguments &args)
 {
-/*    if (args.Length()!=0) return v8::Undefined();
+    if (args.Length()!=0) return v8::Undefined();
 
-    return WrapNodeSet(&s.e->st.nodes);*/
-    HandleScope scope;
-
-    Handle<Array> a = Array::New(s.e->st.nodes.size());
-
-    int i=0;
-    for(auto &n : s.e->st.nodes) {
-        a->Set(i++, WrapNode(n));
-    }
-
-    return scope.Close(a);
-
+    return WrapNodeSet(&s.e->st.nodes);
 }
 
 Handle<Value> EdgesCallback(const Arguments &args)
 {
-/*    if (args.Length()!=0) return v8::Undefined();
+    if (args.Length()!=0) return v8::Undefined();
 
-    return WrapEdgeSet(&s.e->st.edges);*/
-    HandleScope scope;
-
-    Handle<Array> a = Array::New(s.e->st.edges.size());
-
-    int i=0;
-    for(auto &e : s.e->st.edges) {
-        a->Set(i++, WrapEdge(e));
-    }
-
-    return scope.Close(a);
-
+    return WrapEdgeSet(&s.e->st.edges);
 }
 
 Handle<Value> SizeCallback(const Arguments &args)
@@ -630,7 +664,10 @@ void CSEngine::Init(CSMainWindow *wndw)
     global->Set(String::New("_nat_edge"), FunctionTemplate::New(NatEdgeCallback), flags2);
     global->Set(String::New("rand"), FunctionTemplate::New(RandomCallback), flags);
     global->Set(String::New("countbits"), FunctionTemplate::New(CountbitsCallback), flags);
+    global->Set(String::New("print"), FunctionTemplate::New(PrintCallback), flags);
+    global->Set(String::New("println"), FunctionTemplate::New(PrintlnCallback), flags);
     global->Set(String::New("addNode"), FunctionTemplate::New(AddNodeCallback), flags);
+    global->Set(String::New("delNode"), FunctionTemplate::New(DelNodeCallback), flags);
     global->Set(String::New("addEdge"), FunctionTemplate::New(AddEdgeCallback), flags);
     global->Set(String::New("delEdge"), FunctionTemplate::New(DelEdgeCallback), flags);
     global->Set(String::New("getEdge"), FunctionTemplate::New(GetEdgeCallback), flags);

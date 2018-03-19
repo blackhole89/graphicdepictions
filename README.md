@@ -63,14 +63,14 @@ A key feature of graphic depictions is the ability to run JavaScript programs on
 
 * When running on nodes, the current node is made available in the global scope as a special object named `N`. This object can store arbitrary integer and floating-point attributes, so for instance the script `N.v=3;` creates an attribute named `v` in every node that is selected when it is run and assigns the integer `3` to it. If the script `N.v = N.v * N.v;` is then run on a subset of those nodes, the nodes it will run on will have their attribute `v` set to `9`.
 * Nodes also have a special boolean attribute `selected` which is true iff the node in question is currently selected.
-* If `N` is a node object, then `gamma(N)` is an object that denotes the node's neighbourhood, that is, the set of all nodes connected to it, not including itself. This set can be iterated over as follows:
+* If `N` is a node object, then `gamma(N)` is the array of nodes in the node's neighbourhood, that is, all nodes connected to it, not including itself. This set can be iterated over as follows:
 ```javascript
 gamma(N).forEach(function (M) {
     M.selected = true;
 });
 ```
 This script adds all nodes that are adjacent to `N` to the current selection.
-* If `N` is a node object, then `delta(N)` is an object that denotes the node's boundary, that is, the set of all edges incident to it. This set can be iterated over as follows:
+* If `N` is a node object, then `delta(N)` is an array of edges on the node's boundary, that is, all edges incident to it. This set can be iterated over as follows:
 ```javascript
 delta(N).forEach(function (E) {
     // Get other end.
@@ -85,7 +85,7 @@ delta(N).forEach(function (E) {
     E.label = M.v - N.v;
 });
 ```
-* The set of all nodes is always made available in global scope as `nodes()`. So the action of a script "on nodes" can be emulated with a script "on graphs" as follows:
+* The set of all nodes is always made available as an array in global scope as `nodes()`. So the action of a script "on nodes" can be emulated with a script "on graphs" as follows:
 ```javascript
 nodes().forEach(function (N) {
     if(N.selected) {
@@ -99,7 +99,20 @@ Likewise, the set of all edges is made available as `edges()`.
 M = addNode(N.pos.x+0.1, N.pos.y); // or addNode(N.pos.x+0.1, N.pos.y, N.pos.z)
 E = addEdge(M,N);
 ```
-* By default, nodes are drawn white. The display colour of a node `N` can be adjusted by calling `N.setColo(u)r`:
+* `getEdge(M,N)` returns a handle to the edge between `N` and `M` if there is one, and `undefined` otherwise.
+* Existing nodes and edges can be deleted with `delNode` and `delEdge` respectively. All references to a deleted node or edge in global scope are rendered undefined by this. However, it is the user's responsibility to ensure that local references and those stored in closures are disposed of properly.
+```javascript
+addNode(0,0);
+addNode(0.1,0.1);
+E = addEdge(nodes()[0], nodes()[1]);
+var Elocal = E;
+delEdge(nodes()[0], nodes()[1]); // Also ok: delEdge(E);
+// E is now undefined
+// Elocal is now toxic sludge and should not be read
+delNode(nodes()[0]);
+```
+* `print` and `println` can be used to print any single value to the console (opened with `Tab`), potentially creating a new line.
+* The display colour of a node `N` can be adjusted by calling `N.setColo(u)r`. By default, nodes are drawn white.
 ```javascript
 N = addNode(0,0);   // add node at origin
 N.setColor(1.0,0.0,0.0);    // make it red
@@ -138,12 +151,13 @@ Known issues
 Changelog
 ---------
 
-### 0.4 (in development)
+### 0.4
 
 * Nodes and edges can now store arbitrary JavaScript data.
 * Likewise, all global variables created by JS get stored with the graph.
 * Global variables can now be inspected in the user interface.
 * Adding a javascript console, accessible with `Tab`.
+* Adding builtin functions `print` and `println`.
 
 ### 0.3
 

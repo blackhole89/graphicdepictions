@@ -1,6 +1,4 @@
 // gd graph script sum over nodes
-O = addNode(-0.2,0);
-
 var sum = 0.0;
 
 nodes().forEach(function (N) {
@@ -11,5 +9,4 @@ nodes().forEach(function (N) {
 	N.selected=false;
 });
 
-O.out = sum;
-O.selected=true;
+println("Sum: "+sum);
