@@ -188,6 +188,12 @@ public:
     char editor_buf[4096];
     bool editor_is_pernode;
 
+    /* popup terminal state */
+    bool show_terminal;
+    bool force_terminal_focus;
+    std::vector<std::string> term_backlog, term_results;
+    char term_buf[4096];
+
     /* return true iff entry was not erased */
 	bool ScriptListEntry(CSScript *s, int id, bool local);
 
@@ -217,6 +223,7 @@ public:
 	bool CompileScript(const char *code,const char *name, v8::Handle<v8::Script> &out);
 	bool RunScriptForNode(CSState::CSNode *n, v8::Handle<v8::Script> script);
 	bool RunScript(v8::Handle<v8::Script> script);
+    std::string RunScriptGetValue(v8::Handle<v8::Script> script);
 
 	/* actions; eventually should pull everything out here */
 	void AcEdge(float x, float y);

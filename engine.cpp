@@ -72,7 +72,7 @@ Handle<Value> ValueOfCallback(const Arguments &args)
 Handle<Value> NativeRenditionCallback(const Arguments &args)
 {
     Handle<External> he = Handle<External>::Cast(args.Holder()->GetInternalField(0));
-    int type = args.Holder()->GetInternalField(1)->Int32Value(); //<++>
+    int type = args.Holder()->GetInternalField(1)->Int32Value(); 
 
     char buf[128];
     if(type==NO_NODE) {
@@ -296,7 +296,7 @@ Handle<Value> EdgeGet(Local<String> name, const AccessorInfo& info)
         return FunctionTemplate::New(EdgeForeachCallback)->GetFunction();
     } else if(dfield=="valueOf") {
         return FunctionTemplate::New(ValueOfCallback)->GetFunction();
-    } else if(dfield=="__nativeRendition") {
+    } else if(dfield=="_nativeRendition") {
         return FunctionTemplate::New(NativeRenditionCallback)->GetFunction();
     } else if(dfield=="n1") {
         return WrapNode(e->n1);
@@ -456,16 +456,38 @@ Handle<Value> DeltaCallback(const Arguments &args)
 
 Handle<Value> NodesCallback(const Arguments &args)
 {
-    if (args.Length()!=0) return v8::Undefined();
+/*    if (args.Length()!=0) return v8::Undefined();
 
-    return WrapNodeSet(&s.e->st.nodes);
+    return WrapNodeSet(&s.e->st.nodes);*/
+    HandleScope scope;
+
+    Handle<Array> a = Array::New(s.e->st.nodes.size());
+
+    int i=0;
+    for(auto &n : s.e->st.nodes) {
+        a->Set(i++, WrapNode(n));
+    }
+
+    return scope.Close(a);
+
 }
 
 Handle<Value> EdgesCallback(const Arguments &args)
 {
-    if (args.Length()!=0) return v8::Undefined();
+/*    if (args.Length()!=0) return v8::Undefined();
 
-    return WrapEdgeSet(&s.e->st.edges);
+    return WrapEdgeSet(&s.e->st.edges);*/
+    HandleScope scope;
+
+    Handle<Array> a = Array::New(s.e->st.edges.size());
+
+    int i=0;
+    for(auto &e : s.e->st.edges) {
+        a->Set(i++, WrapEdge(e));
+    }
+
+    return scope.Close(a);
+
 }
 
 Handle<Value> SizeCallback(const Arguments &args)
@@ -723,6 +745,18 @@ bool CSEngine::RunScript(Handle<Script> script)
         return false;
     }
     return true;
+}
+
+std::string CSEngine::RunScriptGetValue(Handle<Script> script)
+{
+    TryCatch try_catch;
+    Local<Value> val = script->Run();
+    if(try_catch.HasCaught()) {
+        String::Utf8Value error(try_catch.StackTrace());
+        std::string errstr = std::string("[error] ") + *error;
+        return errstr;
+    }
+    return ToJSON(val);
 }
 
 void *LolThread(void *data)
@@ -1120,6 +1154,10 @@ void CSEngine::RunLogic()
                 }
             }
         }
+    } else if(keys[KEY_TAB]) {
+        keys[KEY_TAB]=false;
+        show_terminal = true;
+        force_terminal_focus = true;
     }
 
     /* Relax layout energy */
@@ -1295,7 +1333,7 @@ void CSEngine::RunLogic()
             ImGui::SetNextWindowContentWidth(200.0f);
             if(ImGui::BeginMenu("Vertex data")) {
                 ImGui::Columns(2);
-                ImGui::SetColumnOffset(1,50.0f);
+                ImGui::SetColumnOffset(1,70.0f);
                 ImGui::Text("pos.x"); ImGui::NextColumn(); ImGui::Text("%.2f",v->pos[0]); ImGui::NextColumn();
                 ImGui::Text("pos.y"); ImGui::NextColumn(); ImGui::Text("%.2f",v->pos[1]); ImGui::NextColumn();
                 ImGui::Text("pos.z"); ImGui::NextColumn(); ImGui::Text("%.2f",v->pos[2]); ImGui::NextColumn();
@@ -1693,6 +1731,89 @@ void CSEngine::RunLogic()
         }
         ImGui::PopItemWidth();
         ImGui::EndPopup();
+    }
+
+    /* popup terminal */
+    if(show_terminal) {
+        ImGuiContext& g = *GImGui;
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 2*g.IO.DisplaySize.y/3.0f));
+        ImGui::SetNextWindowSize(ImVec2(g.IO.DisplaySize.x, g.IO.DisplaySize.y/3.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0,0));
+        ImGui::Begin("##PopupTerminal", NULL, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings);
+
+        ImVec2 input_size = ImVec2( g.IO.DisplaySize.x - 20.0f, 8.0f);
+        int nlines=1;
+        char *ptr = term_buf;
+        while (char c = *ptr++) 
+            if(c == '\n') 
+                nlines++;
+        input_size.y += g.FontSize*nlines;
+
+        ImGui::BeginChild("ScrollingRegion", ImVec2(0,-5.0f-input_size.y), false, ImGuiWindowFlags_HorizontalScrollbar);
+        if (ImGui::BeginPopupContextWindow()) {
+            if (ImGui::Selectable("Clear")) {
+                term_backlog.clear();
+                term_results.clear();
+            }
+            ImGui::EndPopup();
+        }
+
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
+        for (int i = 0; i < term_backlog.size(); i++) {
+            std::string prefixed = "> "+term_backlog[i];
+            const char* item = prefixed.c_str();
+            ImGui::TextUnformatted(item);
+            item = term_results[i].c_str();
+            ImColor col;
+            if (strstr(item, "[error]")) col = ImColor(1.0f,0.4f,0.4f,1.0f);
+            else col = ImColor(0.78f,1.0f,0.58f,1.0f);
+            ImGui::PushStyleColor(ImGuiCol_Text, col);
+            ImGui::TextUnformatted(item);
+            ImGui::PopStyleColor();
+        }
+//        if (ScrollToBottom)
+        ImGui::SetScrollHere();
+//        ScrollToBottom = false;
+        ImGui::PopStyleVar();
+        ImGui::EndChild();
+        ImGui::Separator();
+
+        // Command-line
+        if (ImGui::InputTextEx("##input", term_buf, IM_ARRAYSIZE(term_buf), input_size, ImGuiInputTextFlags_EnterReturnsTrue|ImGuiInputTextFlags_CtrlEnterForNewLine|ImGuiInputTextFlags_CallbackEscape|ImGuiInputTextFlags_Multiline|ImGuiInputTextFlags_NoHorizontalScroll, 
+[] (ImGuiTextEditCallbackData* data) -> int {
+    switch(data->EventFlag) {
+    case ImGuiInputTextFlags_CallbackEscape:
+        s.e->show_terminal=0;
+        break;
+    }
+    return 0;
+},
+ (void*)this)) {
+            char* input_end = term_buf+strlen(term_buf);
+            while (input_end > term_buf && input_end[-1] == ' ') input_end--; *input_end = 0;
+            if (term_buf[0]) {
+                term_backlog.push_back(term_buf);
+                Handle<Script> sc;
+                if(CompileScript(term_buf,editor_tbuf,sc)) {
+                    std::string res = RunScriptGetValue(sc);
+                    term_results.push_back(res);
+                } else {
+                    term_results.push_back("[error] Failed to compile.");
+                }
+            }
+
+            strcpy(term_buf, "");
+            ImGui::SetKeyboardFocusHere(-1);
+        } 
+
+        if (force_terminal_focus || ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0))) {
+            ImGui::SetKeyboardFocusHere(-1); 
+            force_terminal_focus= false;
+        }
+               
+        ImGui::End();
+        ImGui::PopStyleVar(2);
     }
 
     /* run script for selected nodes */

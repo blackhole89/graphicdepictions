@@ -7819,7 +7819,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
                 enter_pressed = true;
             }
             else if (is_editable)
-            {
+            { 
                 unsigned int c = '\n'; // Insert new line
                 if (InputTextFilterCharacter(&c, flags, callback, user_data))
                     edit_state.OnKeyPressed((int)c);
@@ -7831,7 +7831,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
             if (InputTextFilterCharacter(&c, flags, callback, user_data))
                 edit_state.OnKeyPressed((int)c);
         }
-        else if (IsKeyPressedMap(ImGuiKey_Escape))                                     { SetActiveID(0); cancel_edit = true; }
+        else if (!(flags & ImGuiInputTextFlags_CallbackEscape) && IsKeyPressedMap(ImGuiKey_Escape))                           { SetActiveID(0); cancel_edit = true; }
         else if (is_shortcut_key_only && IsKeyPressedMap(ImGuiKey_Z) && is_editable)   { edit_state.OnKeyPressed(STB_TEXTEDIT_K_UNDO); edit_state.ClearSelection(); }
         else if (is_shortcut_key_only && IsKeyPressedMap(ImGuiKey_Y) && is_editable)   { edit_state.OnKeyPressed(STB_TEXTEDIT_K_REDO); edit_state.ClearSelection(); }
         else if (is_shortcut_key_only && IsKeyPressedMap(ImGuiKey_A))                  { edit_state.SelectAll(); edit_state.CursorFollow = true; }
@@ -7908,7 +7908,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
             }
 
             // User callback
-            if ((flags & (ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackAlways)) != 0)
+            if ((flags & (ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackAlways | ImGuiInputTextFlags_CallbackEscape)) != 0)
             {
                 IM_ASSERT(callback != NULL);
 
@@ -7929,6 +7929,12 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
                 {
                     event_flag = ImGuiInputTextFlags_CallbackHistory;
                     event_key = ImGuiKey_DownArrow;
+                }
+                //[blackhole89]
+                else if ((flags & ImGuiInputTextFlags_CallbackEscape) != 0 && IsKeyPressedMap(ImGuiKey_Escape))
+                {
+                    event_flag = ImGuiInputTextFlags_CallbackEscape;
+                    event_key = ImGuiKey_Escape;
                 }
                 else if (flags & ImGuiInputTextFlags_CallbackAlways)
                     event_flag = ImGuiInputTextFlags_CallbackAlways;
@@ -8141,7 +8147,8 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
 
     if (is_multiline)
     {
-        Dummy(text_size + ImVec2(0.0f, g.FontSize)); // Always add room to scroll an extra line
+        //[blackhole89]
+        //Dummy(text_size + ImVec2(0.0f, g.FontSize)); // Always add room to scroll an extra line
         EndChildFrame();
         EndGroup();
         if (g.ActiveId == id || is_currently_scrolling) // Set LastItemId which was lost by EndChild/EndGroup, so user can use IsItemActive()
