@@ -1,12 +1,14 @@
-// gd graph script sum over nodes
-var sum = 0.0;
+// gd graph script Degree statistics
+/* save stats globally */
+stats = {};
 
-nodes().forEach(function (N) {
-	if(N.p<0.0001) return undefined;
-	
-	sum += N.out<0?-N.out:N.out;
-
-	N.selected=false;
+nodes().forEach(function(N) {
+	var d = gamma(N).length;
+	if(!stats[d]) stats[d]=0;
+	++stats[d];
 });
 
-println("Sum: "+sum);
+println("== Graph degree statistics ==");
+for(var d in stats) {
+	println("Degree "+d+": "+stats[d]);
+}

@@ -8,16 +8,16 @@ Possible applications include typesetting graphs for academic papers and present
 You are looking at an early release, and a lot of features and polish are still missing. I am grateful for any bug reports, pull requests, feature suggestions and other feedback.
 
 <img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/sandpile.gif" />
-<a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png" width="300" /></a> <a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png" width="300" /></a> 
+<a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-erdoes-renyi.png" width="300" /></a> <a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-discrete-cube.png" width="300" /></a> <a href="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-0.4-features.png"><img src="https://raw.githubusercontent.com/blackhole89/graphicdepictions/master/screenshots/gd-0.4-features.png" width="300" /></a>
  
 
 How to install
 --------------
 
-The easiest way to use this program is to pull one of the binary builds (version 0.3 of 2016-10-25):
+The easiest way to use this program is to pull one of the binary builds (version 0.4 of 2018-03-19):
 
-* [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.3.tar.gz)
-* [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.3-win64.zip)
+* [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.4.tar.gz)
+* [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.4-win64.zip)
 
 Once you have unpacked the relevant package, switch into the directory contained and run the binary (`./gdepictions` in a Linux shell, or `gdepictions.exe` on Windows).
 
@@ -163,6 +163,7 @@ Changelog
 * Global variables can now be inspected in the user interface.
 * Adding a javascript console, accessible with `Tab`.
 * Adding builtin functions `print` and `println`.
+* Bump file format version.
 
 ### 0.3
 

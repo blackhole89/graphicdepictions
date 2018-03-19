@@ -1,7 +1,7 @@
  /*
   * graphic depictions, a visual workbench for graphs
   *
-  * Copyright (C) 2016 Matvey Soloviev
+  * Copyright (C) 2016-2018 Matvey Soloviev
   *
   * This program is free software: you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -744,6 +744,18 @@ void CSEngine::LoadScripts()
     }
 }
 
+void CSEngine::SaveScripts()
+{
+    char buffn[128];
+    for(int i=0;;i++) {
+        sprintf(buffn, "scripts/%d.js", i);
+        if(unlink(buffn)) break;
+    }   
+    for(int i=0;i<scripts.size();++i) {
+        SaveScript(i);
+    }
+}
+
 void CSEngine::SaveScript(int id)
 {
     char buffn[128];
@@ -1046,8 +1058,20 @@ bool CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
         strcpy(editor_buf,s->code.c_str());
         editor_is_pernode = s->onNodes;
     }
+    if(!local) ImGui::PopStyleColor();
     if(ImGui::BeginPopupContextItem("local or global",2)) {
-        if(ImGui::MenuItem("Stored with graph","",&local)) {
+        if(ImGui::MenuItem("Delete")) {
+            /* close editor if this script was open */
+            if(editor_local == local && editor_index == id) editor_index = -1;
+            /* erase script, possibly sync on disk */
+            if(local) st.scripts.erase(st.scripts.begin()+id);
+            else {
+                scripts.erase(scripts.begin()+id);
+                SaveScripts();
+            }
+            return false;
+        }
+        if(ImGui::MenuItem("Store with graph","",&local)) {
             reassign=true;
         }
         ImGui::EndPopup();
@@ -1064,16 +1088,29 @@ bool CSEngine::ScriptListEntry(CSScript *s, int id, bool local)
         }
      }
     ImGui::PopStyleColor();
-    if(!(local^reassign)) ImGui::PopStyleColor();
     ImGui::NextColumn();
 
     if(reassign) {
         if(local) {
             st.scripts.push_back(*s);
             scripts.erase(scripts.begin()+id);
+            SaveScripts();
+
+            /* if it was open in the editor, repoint */
+            if(editor_index==id && editor_local==!local) {
+                editor_local=local;
+                editor_index=st.scripts.size()-1;
+            }
         } else {
             scripts.push_back(*s);
             st.scripts.erase(st.scripts.begin()+id);
+            SaveScripts();
+
+            /* if it was open in the editor, repoint */
+            if(editor_index==id && editor_local==!local) {
+                editor_local=local;
+                editor_index=scripts.size()-1;
+            }
         }
         return false;
     }
