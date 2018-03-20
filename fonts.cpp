@@ -177,8 +177,8 @@ void CSFont::Render(int tsx,const char* text,int num,float *outline_color)
 	glPopMatrix();
 	glPopMatrix();
 
-	delete buf;
-	delete sbuf;
+	delete [] buf;
+	delete [] sbuf;
 }
 
 int CSFont::RenderSingle(char *buf,int shift,int posx,int posy,char **text)

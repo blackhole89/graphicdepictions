@@ -26,6 +26,8 @@
 #include <sys/time.h>
 #endif
 
+#include "v8/v8-profiler.h"
+
 using namespace v8;
 
 /* helpers */
@@ -101,6 +103,40 @@ Handle<Value> NativeRenditionCallback(const Arguments &args)
     return String::New(buf);
 }
 
+class FileOutputStream : public OutputStream {
+ public:
+  FileOutputStream(FILE* stream) : stream_(stream) {}
+
+  virtual int GetChunkSize() {
+    return 65536;  // big chunks == faster
+  }
+
+  virtual void EndOfStream() {}
+
+  virtual WriteResult WriteAsciiChunk(char* data, int size) {
+    const size_t len = static_cast<size_t>(size);
+    size_t off = 0;
+
+    while (off < len && !feof(stream_) && !ferror(stream_))
+      off += fwrite(data + off, 1, len - off, stream_);
+
+    return off == len ? kContinue : kAbort;
+  }
+
+ private:
+  FILE* stream_;
+};
+
+Handle<Value> SnapHeapCallback(const Arguments &args)
+{
+  FILE* fp = fopen("heap_snapshot", "w");
+  const HeapSnapshot* const snap = HeapProfiler::TakeSnapshot(String::New(""));
+  FileOutputStream stream(fp);
+  snap->Serialize(&stream, HeapSnapshot::kJSON);
+  fclose(fp);
+  HeapProfiler::DeleteAllSnapshots();
+}
+
 Handle<Value> NatNodeCallback(const Arguments &args)
 {
     if(args.Length()<1) return v8::Undefined();
@@ -125,9 +161,14 @@ Handle<Value> SetColourCallback(const Arguments &args)
     Handle<External> hn = Handle<External>::Cast(args.Holder()->GetInternalField(0));
     CSState::CSNode *n = (CSState::CSNode*)hn->Value();
 
-    char buf[256];
-    sprintf(buf,"[%f,%f,%f]",args[0]->NumberValue(), args[1]->NumberValue(), args[2]->NumberValue());
+    double r=args[0]->NumberValue(), g=args[1]->NumberValue(), b=args[2]->NumberValue();
 
+    /* prevent parse failures */
+    if(isnan(r)||isnan(g)||isnan(b)||isinf(r)||isinf(g)||isinf(b)) return v8::Undefined();
+
+    char buf[256];
+    sprintf(buf,"[%f,%f,%f]",r,g,b);
+    printf("%s\n",buf);
     n->a["clr"] = CSState::CSAttr(buf);
 
     return v8::Undefined();
@@ -164,7 +205,7 @@ std::string CSEngine::ToJSON(Handle<Value> val)
     char *buf = new char[st->Utf8Length()+1];
     res->ToString()->WriteUtf8(buf);
     std::string ret(buf);
-    delete buf;
+    delete [] buf;
     return ret;
 }
 
@@ -225,13 +266,14 @@ Handle<Array> NodeEnum(const AccessorInfo &info)
 
 Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
 {
+    HandleScope scope;
+
     Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
     CSState::CSNode *n = (CSState::CSNode*)field->Value();
 
     std::string dfield = *String::Utf8Value(name);
 
     if(dfield=="pos") {
-        HandleScope scope;
         Handle<Object> ret=Object::New();
         ret->Set(String::New("x"), Number::New(n->pos[0]));
         ret->Set(String::New("y"), Number::New(n->pos[1]));
@@ -239,18 +281,18 @@ Handle<Value> NodeGet(Local<String> name, const AccessorInfo& info)
 
         return scope.Close(ret);
     } else if(dfield=="setColor" || dfield=="setColour") {
-        return FunctionTemplate::New(SetColourCallback)->GetFunction();
+        return scope.Close(s.e->set_colour_templ->GetFunction());
     } else if(dfield=="valueOf") {
-        return FunctionTemplate::New(ValueOfCallback)->GetFunction();
+        return scope.Close(s.e->value_of_templ->GetFunction());
     } else if(dfield=="_nativeRendition") {
-        return FunctionTemplate::New(NativeRenditionCallback)->GetFunction();
+        return scope.Close(s.e->native_rendition_templ->GetFunction());
     } else if(dfield=="selected") {
-        return Boolean::New(n->selected);
+        return scope.Close(Boolean::New(n->selected));
     } else if(n->a.count(dfield)) {
         CSState::CSAttr *a = &n->a[dfield];
-        return a->j_data;
+        return scope.Close(Local<Value>::New(a->j_data));
     }
-    return String::New("",0);
+    return Undefined();
 }
 
 Handle<Value> NodeSet(Local<String> name, Local<Value> value, const AccessorInfo& info)
@@ -278,7 +320,7 @@ Handle<Value> NodeSet(Local<String> name, Local<Value> value, const AccessorInfo
     
             n->a[dfield]=CSState::CSAttr((char*)res.c_str());
 
-            printf("Setting. %s, %s\n",res.c_str(),*String::Utf8Value(n->a[dfield].j_data));
+            printf("Setting. %s = %s, %s\n",dfield.c_str(),res.c_str(),*String::Utf8Value(n->a[dfield].j_data));
         }
 
     }
@@ -306,26 +348,28 @@ Handle<Array> EdgeEnum(const AccessorInfo &info)
 
 Handle<Value> EdgeGet(Local<String> name, const AccessorInfo& info)
 {
+    HandleScope scope;
+
     Handle<External> field = Handle<External>::Cast(info.Holder()->GetInternalField(0));
     CSState::CSEdge *e = (CSState::CSEdge*)field->Value();
 
     std::string dfield = *String::Utf8Value(name);
 
     if(dfield=="forEach") {
-        return FunctionTemplate::New(EdgeForeachCallback)->GetFunction();
+        return scope.Close(s.e->edge_foreach_templ->GetFunction());
     } else if(dfield=="valueOf") {
-        return FunctionTemplate::New(ValueOfCallback)->GetFunction();
+        return scope.Close(s.e->value_of_templ->GetFunction()); 
     } else if(dfield=="_nativeRendition") {
-        return FunctionTemplate::New(NativeRenditionCallback)->GetFunction();
+        return scope.Close(s.e->native_rendition_templ->GetFunction());
     } else if(dfield=="n1") {
-        return WrapNode(e->n1);
+        return scope.Close(WrapNode(e->n1));
     } else if(dfield=="n2") {
-        return WrapNode(e->n2);
+        return scope.Close(WrapNode(e->n2));
     } else if(e->a.count(dfield)) {
         CSState::CSAttr *a = &e->a[dfield];
-        return a->j_data;
+        return scope.Close(Local<Value>::New(a->j_data));
     }
-    return String::New("",0);
+    return Undefined();
 }
 
 Handle<Value> EdgeSet(Local<String> name, Local<Value> value, const AccessorInfo& info)
@@ -662,6 +706,7 @@ void CSEngine::Init(CSMainWindow *wndw)
     PropertyAttribute flags2 = (PropertyAttribute)(flags|DontEnum);
     global->Set(String::New("_nat_node"), FunctionTemplate::New(NatNodeCallback), flags2);
     global->Set(String::New("_nat_edge"), FunctionTemplate::New(NatEdgeCallback), flags2);
+    global->Set(String::New("_snap_heap"), FunctionTemplate::New(SnapHeapCallback), flags2);
     global->Set(String::New("rand"), FunctionTemplate::New(RandomCallback), flags);
     global->Set(String::New("countbits"), FunctionTemplate::New(CountbitsCallback), flags);
     global->Set(String::New("print"), FunctionTemplate::New(PrintCallback), flags);
@@ -675,6 +720,11 @@ void CSEngine::Init(CSMainWindow *wndw)
     global->Set(String::New("delta"), FunctionTemplate::New(DeltaCallback), flags);
     global->Set(String::New("nodes"), FunctionTemplate::New(NodesCallback), flags);
     global->Set(String::New("edges"), FunctionTemplate::New(EdgesCallback), flags);
+
+    value_of_templ = Persistent<FunctionTemplate>::New(FunctionTemplate::New(ValueOfCallback));
+    native_rendition_templ = Persistent<FunctionTemplate>::New(FunctionTemplate::New(NativeRenditionCallback));
+    set_colour_templ = Persistent<FunctionTemplate>::New(FunctionTemplate::New(SetColourCallback));
+    edge_foreach_templ = Persistent<FunctionTemplate>::New(FunctionTemplate::New(EdgeForeachCallback));
 
     /* global scripts; need to enter a context to compile */
     st.v8ctx = v8::Context::New(NULL, global);
@@ -1155,6 +1205,7 @@ void CSEngine::RenderAttrs(CSState::attrs *a, bool show_builtins)
 
 void CSEngine::RenderNamedProperty(const char *name, v8::Handle<v8::Value> pvalue, bool show_builtins)
 {
+    HandleScope scope;
     if(pvalue->IsObject()) {
         Handle<Object> pobj = pvalue->ToObject();
         if(pvalue->IsFunction()) {
@@ -1194,7 +1245,8 @@ void CSEngine::RenderNamedProperty(const char *name, v8::Handle<v8::Value> pvalu
             }
         } else {
             /* javascript object */
-            ImGui::Text(*String::Utf8Value(pvalue));
+            String::Utf8Value v(pvalue);
+            ImGui::Text("%s",*v);
             ImGui::NextColumn();
             if(node_open) {
                 RenderObjectProps(pobj, show_builtins);
@@ -1205,7 +1257,7 @@ void CSEngine::RenderNamedProperty(const char *name, v8::Handle<v8::Value> pvalu
         ImGui::Bullet();
         ImGui::Selectable(name);
         ImGui::NextColumn();
-        ImGui::Text(*String::Utf8Value(pvalue));
+        ImGui::Text("%s",*String::Utf8Value(pvalue));
         //ImGui::InputText("##value",*String::Utf8Value(pvalue),32);
         ImGui::NextColumn();
     }
@@ -1708,7 +1760,7 @@ void CSEngine::RunLogic()
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(10,1));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(4,8));
-    ImGui::Begin("Data",NULL,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_ShowBorders);
+    if(ImGui::Begin("Data",NULL,ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_ShowBorders)) {
     ImGui::GetCurrentWindow()->Flags &= ~ImGuiWindowFlags_ShowBorders;
 
     ImGui::BeginChild("ScrollingRegion", ImVec2(-1,-ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
@@ -1723,7 +1775,7 @@ void CSEngine::RunLogic()
     ImGui::Separator();
 
     ImGui::Checkbox("Show builtins",&show_builtins);
-
+    }
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleVar();
@@ -2120,7 +2172,7 @@ void CSEngine::Run()
 {
 	pthread_t tid;
 	//pthread_create(&tid,NULL,LolThread,(void*)this);
-	pthread_create(&tid,NULL,fpscount,(void*)this);
+//	pthread_create(&tid,NULL,fpscount,(void*)this);
 	long long t;
 	int last_frame;
 

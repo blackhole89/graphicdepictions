@@ -24,6 +24,8 @@
 #else
 #endif
 
+#include "v8/v8-profiler.h"
+
 /* deferred load */
 CSState::CSAttr CSState::CSAttr::FromStringDeferred(char *j)
 {
@@ -34,20 +36,50 @@ CSState::CSAttr CSState::CSAttr::FromStringDeferred(char *j)
 void CSState::CSAttr::Compile()
 {
     j_data = v8::Persistent<v8::Value>::New(s.e->FromJSON((char*)st.c_str()));
+    j_data.SetWrapperClassId(1);
     st="";
 }
 
 CSState::CSAttr::CSAttr(char *j)
 {
     j_data = v8::Persistent<v8::Value>::New(s.e->FromJSON(j));
-    printf("j_data is now %s.\n",*v8::String::Utf8Value(j_data));
+    //VV v; v.count=0;
+    //v8::V8::VisitHandlesWithClassIds(&v);
+    printf("Count: %d\n",v8::HeapProfiler::GetPersistentHandleCount());
+//    printf("create pcell %X: %s\n",identity,*v8::String::Utf8Value(j_data));
+//    printf("live: %d\n", live.size());
 }
 
 CSState::CSAttr::CSAttr()
 {}
 
+CSState::CSAttr &CSState::CSAttr::operator=(CSAttr &&other)
+{
+    j_data.Dispose();
+    j_data = other.j_data;
+    st = other.st;
+    other.j_data = v8::Persistent<v8::Value>();
+    return *this;
+}
+
+CSState::CSAttr &CSState::CSAttr::operator=(const CSAttr &other)
+{
+    printf("copy (%llX <- %llX)\n",this,&other);
+    return *this;
+}
+
+CSState::CSAttr::CSAttr(const CSAttr &other)
+{
+    operator=(other);
+}
+
 CSState::CSAttr::~CSAttr()
 {
+//    printf("destroy pcell %X: %s\n",identity,*v8::String::Utf8Value(j_data));
+    j_data.Dispose();
+//    v8::HeapStatistics stats;
+//    v8::V8::GetHeapStatistics(&stats);
+//    printf("heap:  %d/%d\n", stats.used_heap_size(), stats.total_heap_size());
 }
 
 std::string CSState::CSAttr::PrettyPrint()
@@ -561,7 +593,7 @@ void CSState::Load()
                 char *json = new char[len+1];
                 fread(json,1,len,fl); json[len]=0;
                 n->a[buf]=CSAttr::FromStringDeferred(json);
-                delete json;
+                delete [] json;
             } else {
                 // old-style data
                 fscanf(fl,"%[^\n] ",buf2);
@@ -590,7 +622,7 @@ void CSState::Load()
                     char *json = new char[len+1];
                     fread(json,1,len,fl); json[len]=0;
                     e->a[buf]=CSAttr::FromStringDeferred(json);
-                    delete json;
+                    delete [] json;
                 } else {
                     // old-style data
                     fscanf(fl,"%[^\n] ",buf2);
@@ -635,7 +667,7 @@ void CSState::Load()
         v8::Local<v8::Object> obj = s.e->FromJSON(buf)->ToObject();
         s.e->ImportToGlobal(obj);
 
-        delete buf;
+        delete [] buf;
     }
 
     int nscripts=0;

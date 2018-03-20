@@ -53,6 +53,9 @@ public:
         void Compile();
 
         CSAttr(char *);
+        CSAttr &operator=(CSAttr &&other);
+        CSAttr &operator=(const CSAttr &other);
+        CSAttr(const CSAttr &other);
         CSAttr();
         ~CSAttr();
 
@@ -167,6 +170,7 @@ public:
 
     v8::HandleScope v8hs;
     v8::Persistent<v8::ObjectTemplate> global, node_templ, set_templ, edge_templ, edge_set_templ;
+    v8::Persistent<v8::FunctionTemplate> value_of_templ, native_rendition_templ, set_colour_templ, edge_foreach_templ;
 
     std::vector<CSScript > scripts;
     char err_buf[4096];
