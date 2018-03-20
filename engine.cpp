@@ -168,7 +168,6 @@ Handle<Value> SetColourCallback(const Arguments &args)
 
     char buf[256];
     sprintf(buf,"[%f,%f,%f]",r,g,b);
-    printf("%s\n",buf);
     n->a["clr"] = CSState::CSAttr(buf);
 
     return v8::Undefined();
@@ -320,7 +319,7 @@ Handle<Value> NodeSet(Local<String> name, Local<Value> value, const AccessorInfo
     
             n->a[dfield]=CSState::CSAttr((char*)res.c_str());
 
-            printf("Setting. %s = %s, %s\n",dfield.c_str(),res.c_str(),*String::Utf8Value(n->a[dfield].j_data));
+//            printf("Setting. %s = %s, %s\n",dfield.c_str(),res.c_str(),*String::Utf8Value(n->a[dfield].j_data));
         }
 
     }
@@ -1973,7 +1972,7 @@ void CSEngine::RunLogic()
             ImColor col;
             if (!strncmp(item, "> ",2)) col = ImColor(1.0f,1.0f,1.0f,1.0f);
             else if (!strncmp(item, "[error]",7)) col = ImColor(1.0f,0.4f,0.4f,1.0f);
-            else if (!strncmp(item, ":",1)) { col = ImColor(0.5f,0.5f,1.0f,1.0f); ++item; }
+            else if (!strncmp(item, ":",1)) { col = ImColor(0.7f,0.7f,1.0f,1.0f); ++item; }
             else col = ImColor(0.5f,1.0f,0.5f,1.0f);
             ImGui::PushStyleColor(ImGuiCol_Text, col);
             ImGui::TextUnformatted(item);

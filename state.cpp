@@ -43,11 +43,7 @@ void CSState::CSAttr::Compile()
 CSState::CSAttr::CSAttr(char *j)
 {
     j_data = v8::Persistent<v8::Value>::New(s.e->FromJSON(j));
-    //VV v; v.count=0;
-    //v8::V8::VisitHandlesWithClassIds(&v);
-    printf("Count: %d\n",v8::HeapProfiler::GetPersistentHandleCount());
-//    printf("create pcell %X: %s\n",identity,*v8::String::Utf8Value(j_data));
-//    printf("live: %d\n", live.size());
+//    printf("Count: %d\n",v8::HeapProfiler::GetPersistentHandleCount());
 }
 
 CSState::CSAttr::CSAttr()

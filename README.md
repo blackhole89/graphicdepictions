@@ -14,7 +14,7 @@ You are looking at an early release, and a lot of features and polish are still 
 How to install
 --------------
 
-The easiest way to use this program is to pull one of the binary builds (version 0.4 of 2018-03-19):
+The easiest way to use this program is to pull one of the binary builds (version 0.4.1 of 2018-03-20):
 
 * [Linux x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.4.tar.gz)
 * [Windows x86_64](http://twilightro.kafuka.org/%7Eblackhole89/files/gdepictions-0.4-win64.zip)
@@ -167,6 +167,11 @@ Future plans
 
 Changelog
 ---------
+
+### 0.4.1
+
+* Fixed a number of memory leaks.
+* Added Restricted Boltzmann Machine example.
 
 ### 0.4
 

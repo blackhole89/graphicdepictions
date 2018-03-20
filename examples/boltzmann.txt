@@ -1,0 +1,471 @@
+version 2
+2D
+7
+0 0.02000000 -0.00600000 0.00000000 9
+"b"=j17,4.039999999999958
+"clr"=j7,[1,1,1]
+"label"=j17,4.039999999999958
+"sample"=j217,function () {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	}
+"show"=j85,function () {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	}
+"update"=j71,function () {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	}
+"v"=j1,0
+"vdata"=j1,0
+"vrecon"=j1,0
+0 0.00000000 -0.00000000 0.00000000 9
+"b"=j18,-4.049999999999958
+"clr"=j7,[1,0,0]
+"label"=j18,-4.049999999999958
+"sample"=j217,function () {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	}
+"show"=j85,function () {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	}
+"update"=j71,function () {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	}
+"v"=j1,1
+"vdata"=j1,1
+"vrecon"=j1,1
+0 0.00000000 0.10000000 0.00000000 9
+"b"=j18,-1.330000000000001
+"clr"=j7,[1,0,0]
+"label"=j18,-1.330000000000001
+"sample"=j217,function () {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	}
+"show"=j85,function () {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	}
+"update"=j71,function () {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	}
+"v"=j1,1
+"vdata"=j1,1
+"vrecon"=j1,1
+0 0.02000000 0.13000000 0.00000000 9
+"b"=j18,-1.420000000000001
+"clr"=j7,[1,0,0]
+"label"=j18,-1.420000000000001
+"sample"=j217,function () {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	}
+"show"=j85,function () {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	}
+"update"=j71,function () {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	}
+"v"=j1,1
+"vdata"=j1,1
+"vrecon"=j1,1
+0 0.04000000 -0.01200000 0.00000000 9
+"b"=j18,-4.119999999999957
+"clr"=j7,[1,0,0]
+"label"=j18,-4.119999999999957
+"sample"=j217,function () {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	}
+"show"=j85,function () {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	}
+"update"=j71,function () {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	}
+"v"=j1,1
+"vdata"=j1,1
+"vrecon"=j1,1
+0 0.08000000 -0.02400000 0.00000000 9
+"b"=j18,-4.019999999999959
+"clr"=j7,[1,0,0]
+"label"=j18,-4.019999999999959
+"sample"=j217,function () {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	}
+"show"=j85,function () {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	}
+"update"=j71,function () {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	}
+"v"=j1,1
+"vdata"=j1,1
+"vrecon"=j1,1
+0 0.06000000 -0.01800000 0.00000000 9
+"b"=j17,4.049999999999958
+"clr"=j7,[1,1,1]
+"label"=j17,4.049999999999958
+"sample"=j217,function () {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	}
+"show"=j85,function () {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	}
+"update"=j71,function () {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	}
+"v"=j1,0
+"vdata"=j1,0
+"vrecon"=j1,0
+10
+6 3 4 "label"=j18,-4.844899999999941 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j18,-4.844899999999941
+1 3 4 "label"=j17,4.517199999999948 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j17,4.517199999999948
+5 2 4 "label"=j17,4.147299999999956 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j17,4.147299999999956
+1 2 4 "label"=j17,4.164599999999956 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j17,4.164599999999956
+6 2 4 "label"=j18,-4.295499999999953 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j18,-4.295499999999953
+4 2 4 "label"=j17,4.148499999999956 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j17,4.148499999999956
+5 3 4 "label"=j18,4.6220999999999455 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j18,4.6220999999999455
+0 3 4 "label"=j18,-4.783699999999943 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j18,-4.783699999999943
+0 2 4 "label"=j19,-4.2077999999999545 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j19,-4.2077999999999545
+4 3 4 "label"=j17,4.701999999999944 "show"=j39,function () {
+		this.label = this.w;
+	} "update"=j112,function () {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	} "w"=j17,4.701999999999944
+10
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1716
+{"epsilon":0.01,"load_functions":function () {
+nodes().forEach(function(N) {
+	N.show = function() {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	};
+	N.sample = function() {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	};
+	N.update = function() {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	};
+});
+edges().forEach(function(E) {
+	E.show = function() {
+		this.label = this.w;
+	};
+	E.update = function() {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	};
+});
+},"itoh":function () {
+	hlayer.forEach(function(N) {
+		N.sample();
+	});
+},"htoi":function () {
+	ilayer.forEach(function(N) {
+		N.sample();
+	});
+},"learn":function () {
+	itoh();
+	nodes().forEach(function(N) {
+		N.vdata = N.v;
+	});
+	htoi();
+	itoh();
+	nodes().forEach(function(N) {
+		N.vrecon = N.v;
+		N.update();
+	});
+	edges().forEach(function(E) {
+		E.update();
+	});
+},"load":function (T) {
+	for(var i=0;i<T.length;++i) {
+		ilayer[i].v=T[i];
+		ilayer[i].show();
+	}
+},"create":function (ni,nh) {
+	ilayer = [];
+	hlayer = [];
+	for(var i=0;i<ni;++i) {
+		ilayer.push(addNode(0.02*i,-0.006*i));
+	}
+	for(var j=0;j<nh;++j) {
+		hlayer.push(addNode(0.02*j,0.1+0.03*j));
+	}
+	for(var i=0;i<ni;++i) {
+		for(var j=0;j<nh;++j) {
+			addEdge(ilayer[i],hlayer[j]);
+		}
+	}
+	load_functions();
+},"ilayer":[_nat_node(1),_nat_node(0),_nat_node(4),_nat_node(6),_nat_node(5)],"hlayer":[_nat_node(2),_nat_node(3)],"train":function (steps) {
+	for(var i=0;i<steps;++i) {
+		/* load random set */
+		load(data[rand()%data.length]);
+		learn();
+	}
+}}
+3
+1769 byte graph script boltzmann init
+epsilon = 0.01;
+
+load_functions = function() {
+nodes().forEach(function(N) {
+	N.show = function() {
+		var N = this;
+		N.label = N.b;
+		N.setColour(1.0,1.0-N.v,1.0-N.v);
+	};
+	N.sample = function() {
+		var N = this;
+		var sum = N.b;
+		gamma(N).forEach(function (M) {
+			sum += M.v*getEdge(N,M).w;
+		});
+		var prob = 1.0/(1.0+Math.exp(-sum));
+		N.v = ((rand()%1000000)<(prob*1000000))?1:0;
+		N.show();
+	};
+	N.update = function() {
+		var N = this;
+		N.b += epsilon*(N.vdata - N.vrecon);
+	};
+});
+edges().forEach(function(E) {
+	E.show = function() {
+		this.label = this.w;
+	};
+	E.update = function() {
+		var E = this;
+		E.w += epsilon*(E.n1.vdata*E.n2.vdata - E.n1.vrecon*E.n2.vrecon);
+		E.show();
+	};
+});
+};
+
+itoh = function() {
+	hlayer.forEach(function(N) {
+		N.sample();
+	});
+};
+
+htoi = function() {
+	ilayer.forEach(function(N) {
+		N.sample();
+	});
+};
+
+learn = function() {
+	itoh();
+	nodes().forEach(function(N) {
+		N.vdata = N.v;
+	});
+	htoi();
+	itoh();
+	nodes().forEach(function(N) {
+		N.vrecon = N.v;
+		N.update();
+	});
+	edges().forEach(function(E) {
+		E.update();
+	});
+};
+
+// T is an array of same length as ilayer
+load = function(T) {
+	for(var i=0;i<T.length;++i) {
+		ilayer[i].v=T[i];
+		ilayer[i].show();
+	}
+};
+
+// create with ni input and nh hidden nodes
+create = function(ni,nh) {
+	ilayer = [];
+	hlayer = [];
+	for(var i=0;i<ni;++i) {
+		ilayer.push(addNode(0.02*i,-0.006*i));
+	}
+	for(var j=0;j<nh;++j) {
+		hlayer.push(addNode(0.02*j,0.1+0.03*j));
+	}
+	for(var i=0;i<ni;++i) {
+		for(var j=0;j<nh;++j) {
+			addEdge(ilayer[i],hlayer[j]);
+		}
+	}
+	load_functions();
+};
+
+println("Create an RBM with x input and y hidden nodes by calling create(x,y).");
+println("Then run the script called 'init weights'.");
+println("Then run the script 'train' as many times as needed.");
+
+159 byte graph script init weights
+nodes().forEach(function (N) {
+	N.b = 0;
+
+	N.show();
+});
+
+edges().forEach(function (E) {
+	// in [-0.01,+0.01]
+	E.w = ((rand()%201)*0.01)*0.01;
+
+	E.show();
+});
+
+184 byte graph script train
+var data = [ [1,0,1,0,1], [0,1,0,1,0] ];
+
+train = function(steps) {
+	for(var i=0;i<steps;++i) {
+		/* load random set */
+		load(data[rand()%data.length]);
+		learn();
+	}
+};
+
+train(1000);
