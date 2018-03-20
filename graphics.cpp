@@ -261,12 +261,10 @@ void CSGraphics::DoDraw()
                             ((*i)->n1->pos[2]+(*i)->n2->pos[2])/2.0f );
 
             CSState::CSAttr *a = &(*i)->a["label"];
-            char buf[32]={0};
-            a->PrettyPrint(buf);
+            std::string l = a->PrettyPrint();
 
-            int n=strlen(buf);
             static float el_outline[4] = {1.0f,1.0f,1.0f,1.0f};
-            nodefont->Render(16,buf,n,el_outline);
+            nodefont->Render(16,l.c_str(),l.length(),el_outline);
             ReturnToSpace();
         }
 	}
@@ -311,17 +309,16 @@ void CSGraphics::DoDraw()
             if( (*i)->a.count( nodelook[y*3+x] ) ) {
                 glColor4fv( nodecol[y*3+x] );
                 CSState::CSAttr *a = &(*i)->a[nodelook[y*3+x]];
-                char buf[32]={0};
-                a->PrettyPrint(buf);
+                std::string l = a->PrettyPrint();
                 glTranslatef((x*15)-23,(y*13)-19,0);
-                int n=strlen(buf);
+                int n=l.length();
                 if(!x) glTranslatef(-7*n+15,0,0);
 
                 float white_border[4]={1.0f,1.0f,1.0f,1.0f};
                 // choose appropriate border colour based on YUV luminance threshold
                 if((0.2126*nodecol[y*3+x][0]+0.7152*nodecol[y*3+x][1]+0.0722*nodecol[y*3+x][2])<0.7)
-                    nodefont->Render(16,buf,n,white_border);
-                else nodefont->Render(16,buf,n);
+                    nodefont->Render(16,l.c_str(),n,white_border);
+                else nodefont->Render(16,l.c_str(),n);
 
                 if(!x) glTranslatef(7*n-15,0,0);
                 glTranslatef(23-(x*15),19-(y*13),0);

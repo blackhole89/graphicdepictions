@@ -88,10 +88,7 @@ void ExportTikz(CSState *st, char *filename)
         if( (*i)->a.count( "label" ) ) {
             CSState::CSAttr *a = &(*i)->a["label"];
 
-            char buf[32]={0};
-            a->PrettyPrint(buf);
-
-            fprintf(fl,"\\draw[e] (n%d) -- node[auto,midway,el] {$%s$} (n%d);\n",nodes2id[(*i)->n1],buf,nodes2id[(*i)->n2]);
+            fprintf(fl,"\\draw[e] (n%d) -- node[auto,midway,el] {$%s$} (n%d);\n",nodes2id[(*i)->n1],a->PrettyPrint().c_str(),nodes2id[(*i)->n2]);
         } else {
             fprintf(fl,"\\draw[e] (n%d) -- (n%d);\n",nodes2id[(*i)->n1],nodes2id[(*i)->n2]);
         }
@@ -105,10 +102,8 @@ void ExportTikz(CSState *st, char *filename)
         for(int y=0;y<3;++y) for(int x=0;x<3;++x) {
             if( (*i)->a.count( s.e->graphics.nodelook[y*3+x] ) ) {
                 CSState::CSAttr *a = &(*i)->a[s.e->graphics.nodelook[y*3+x]];
-                char buf[32]={0};
-                a->PrettyPrint(buf);
 
-                fprintf(fl,"\\draw (n%d) node[color=clr%d%d,nl%s] {$%s$};\n", nodes2id[*i], x,y, anchors[y][x], buf);
+                fprintf(fl,"\\draw (n%d) node[color=clr%d%d,nl%s] {$%s$};\n", nodes2id[*i], x,y, anchors[y][x], a->PrettyPrint().c_str());
             }
         }
 

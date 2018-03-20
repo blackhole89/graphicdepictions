@@ -50,16 +50,17 @@ CSState::CSAttr::~CSAttr()
 {
 }
 
-void CSState::CSAttr::PrettyPrint(char *buf)
+std::string CSState::CSAttr::PrettyPrint()
 {
-    sprintf(buf,"%s",*v8::String::Utf8Value(j_data));
+    return std::string(*v8::String::Utf8Value(j_data));
 }
 
-void CSState::CSAttr::ToString(char *buf)
+std::string CSState::CSAttr::ToString()
 {
     std::string str = s.e->ToJSON(j_data);
-    sprintf(buf,"j%d,%s",str.length(),str.c_str());
-    return;
+    char buf[32];
+    sprintf(buf,"j%d,",str.length());
+    return buf+str;
 }
 
 CSState::CSAttr CSState::CSAttr::FromString(char *buf)
@@ -698,9 +699,7 @@ void CSState::Save()
         fprintf(fl,"%d %.8f %.8f %.8f %d\n",(*i)->selected,(*i)->pos[0],(*i)->pos[1],(*i)->pos[2],(*i)->a.size());
         for(auto j=(*i)->a.begin(); j!=(*i)->a.end(); ++j) {
             fprintf(fl,"\"%s\"=",j->first.c_str());
-            char buf[64];
-            j->second.ToString(buf);
-            fprintf(fl,"%s\n",buf);
+            fprintf(fl,"%s\n",j->second.ToString().c_str());
         }
     }
 
@@ -713,9 +712,7 @@ void CSState::Save()
         fprintf(fl,"%d",(*i)->a.size());
         for(auto j=(*i)->a.begin(); j!=(*i)->a.end(); ++j) {
             fprintf(fl," \"%s\"=",j->first.c_str());
-            char buf[64];
-            j->second.ToString(buf);
-            fprintf(fl,"%s",buf);
+            fprintf(fl,"%s",j->second.ToString().c_str());
         }
         fprintf(fl,"\n");
     }

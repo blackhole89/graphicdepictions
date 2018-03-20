@@ -56,9 +56,9 @@ public:
         CSAttr();
         ~CSAttr();
 
-        void PrettyPrint(char *buf);
+        std::string PrettyPrint();
 
-        void ToString(char *buf);
+        std::string ToString();
         static CSAttr FromString(char *buf);
         double ArrayGet(int i); // hack for node colour
     };
