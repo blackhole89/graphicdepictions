@@ -220,8 +220,11 @@ void CSGraphics::DoDraw()
     /* edges */
 	glDisable(GL_DEPTH_TEST);
     glLineWidth(3);
-    glColor4fv(config.edge);
     for(auto i = s.e->st.edges.begin(); i!=s.e->st.edges.end(); ++i) {
+        /* highlight edges iff both endpoints are selected */
+        if( (*i)->n1->selected && (*i)->n2->selected ) glColor4fv(config.e_select);
+        else glColor4fv(config.edge);
+
         glBegin(GL_LINES);
             glVertex3fv( (*i)->n1->pos );
             glVertex3fv( (*i)->n2->pos );
@@ -256,6 +259,10 @@ void CSGraphics::DoDraw()
 	/* edge labels */
 	for(auto i = s.e->st.edges.begin(); i!=s.e->st.edges.end(); ++i) {
         if( (*i)->a.count( "label" ) ) {
+            /* highlight edge labels iff both endpoints are selected */
+            if( (*i)->n1->selected && (*i)->n2->selected ) glColor4fv(config.e_select);
+            else glColor4fv(config.edge);
+
             OrthoAtSpatial( ((*i)->n1->pos[0]+(*i)->n2->pos[0])/2.0f,
                             ((*i)->n1->pos[1]+(*i)->n2->pos[1])/2.0f,
                             ((*i)->n1->pos[2]+(*i)->n2->pos[2])/2.0f );
