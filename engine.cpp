@@ -1300,6 +1300,12 @@ void CSEngine::RunLogic()
     graphics.vangle +=graphics.dvangle;
     graphics.zoom +=graphics.dzoom;
 
+    if(graphics.angle > PI) graphics.angle -= 2*PI;
+    if(graphics.angle < -PI) graphics.angle += 2*PI;
+    if(graphics.vangle > (PI/2.0-0.0001)) graphics.vangle = PI/2.0-0.0001;
+    if(graphics.vangle < (-PI/2.0+0.0001)) graphics.vangle = -PI/2.0+0.0001;
+
+    /* movement speed decay */
     graphics.dangle *= 0.82f;
     graphics.dvangle *= 0.82f;
     graphics.dzoom *= 0.82f;
