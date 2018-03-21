@@ -168,6 +168,13 @@ Future plans
 Changelog
 ---------
 
+### 0.4.2 (WIP)
+
+* Quality-of-life improvements: 
+  * highlight selected edges
+  * camera position clamping and wrapping
+  * better grid snapping
+
 ### 0.4.1
 
 * Fixed a number of memory leaks.
