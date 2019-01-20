@@ -223,7 +223,13 @@ void CSGraphics::DoDraw()
     for(auto i = s.e->st.edges.begin(); i!=s.e->st.edges.end(); ++i) {
         /* highlight edges iff both endpoints are selected */
         if( (*i)->n1->selected && (*i)->n2->selected ) glColor4fv(config.e_select);
-        else glColor4fv(config.edge);
+        else {
+            if( (*i)->a.count("clr") ) {
+                glColor4f((*i)->a["clr"].ArrayGet(0), (*i)->a["clr"].ArrayGet(1), (*i)->a["clr"].ArrayGet(2), config.edge[3]);
+            } else {
+                glColor4fv(config.edge);
+            }
+        }
 
         glBegin(GL_LINES);
             glVertex3fv( (*i)->n1->pos );
